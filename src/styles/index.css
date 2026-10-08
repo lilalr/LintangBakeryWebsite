@@ -1,0 +1,6 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+.currency-cell { text-align: right; }
+.text-right { text-align: right; }
