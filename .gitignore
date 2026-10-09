@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.backup
+.env.production
+/vendor
+/public/build
+/public/hot
+/storage/*.key
+/.phpunit.cache
+/.phpunit.result.cache
+/database/database.sqlite
+node_modules
+node_modules
