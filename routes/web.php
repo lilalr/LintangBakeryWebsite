@@ -45,5 +45,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/transaksi-offline', [OfflineTransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transaksi-offline', [OfflineTransactionController::class, 'store'])->name('transactions.store');
     Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');
+    Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
 });

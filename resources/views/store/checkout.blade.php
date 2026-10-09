@@ -14,6 +14,7 @@
         <h2>Pembayaran</h2>
         <label class="choice-card"><input type="radio" name="payment_type" value="full" @checked(old('payment_type', 'full') === 'full')> Lunas di muka</label>
         <label class="choice-card"><input type="radio" name="payment_type" value="dp" @checked(old('payment_type') === 'dp')> Uang muka 65%, pelunasan menyusul</label>
+        <label>Metode pembayaran<select name="payment_method" required><option value="bank_transfer" @selected(old('payment_method', 'bank_transfer') === 'bank_transfer')>Transfer bank</option><option value="qris" @selected(old('payment_method') === 'qris')>QRIS</option></select></label>
         <label>Bukti pembayaran (opsional)<input type="file" name="payment_proof" accept="image/*"></label>
         <button class="button button-full" type="submit">Buat pesanan</button>
     </form>

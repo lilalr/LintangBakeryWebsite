@@ -11,7 +11,8 @@
         @if ($product->exists) @method('PUT') @endif
         <div class="form-row"><label>Nama produk<input name="name" value="{{ old('name', $product->name) }}" required maxlength="160"></label><label>Kategori<input name="category" value="{{ old('category', $product->category ?: 'Kue Kering') }}" required></label></div>
         <label>Deskripsi<textarea name="description" rows="5" required>{{ old('description', $product->description) }}</textarea></label>
-        <div class="form-row"><label>Harga per bal (Rp)<input type="number" name="price_per_bal" min="1" value="{{ old('price_per_bal', $product->price_per_bal) }}" required></label><label>Foto produk (URL)<input type="url" name="image" value="{{ old('image', $product->image) }}" placeholder="https://..."></label></div>
+        <div class="form-row"><label>Harga jual per bal (Rp)<input type="number" name="price_per_bal" min="1" value="{{ old('price_per_bal', $product->price_per_bal) }}" required></label><label>HPP / harga modal per bal (Rp)<input type="number" name="cost_price" min="0" step="0.01" value="{{ old('cost_price', $product->cost_price ?? 0) }}" required></label></div>
+        <label>Foto produk (URL)<input type="url" name="image" value="{{ old('image', $product->image) }}" placeholder="https://..."></label>
         <div class="form-row"><label>Kanal penjualan<select name="sales_channel" required>@foreach (['online' => 'Online (katalog)', 'offline' => 'Offline (toko fisik)', 'both' => 'Online dan offline'] as $value => $label)<option value="{{ $value }}" @selected(old('sales_channel', $product->sales_channel ?: 'online') === $value)>{{ $label }}</option>@endforeach</select></label><label>Stok offline (bal)<input type="number" name="stock" min="0" value="{{ old('stock', $product->stock ?? 0) }}" required></label></div>
         <button class="button" type="submit">{{ $product->exists ? 'Simpan perubahan' : 'Tambah produk' }}</button>
     </form>
