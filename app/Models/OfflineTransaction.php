@@ -11,6 +11,8 @@ class OfflineTransaction extends Model
         'date',
         'buyer_name',
         'total',
+        'total_hpp',
+        'total_laba',
         'payment_method',
         'notes',
     ];
@@ -20,6 +22,8 @@ class OfflineTransaction extends Model
         return [
             'date' => 'date',
             'total' => 'integer',
+            'total_hpp' => 'decimal:2',
+            'total_laba' => 'decimal:2',
         ];
     }
 

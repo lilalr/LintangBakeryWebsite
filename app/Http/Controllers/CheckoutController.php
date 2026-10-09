@@ -31,6 +31,7 @@ class CheckoutController extends Controller
             'city' => ['required', 'string', 'max:120'],
             'province' => ['required', 'string', 'max:120'],
             'payment_type' => ['required', 'in:full,dp'],
+            'payment_method' => ['nullable', 'in:bank_transfer,qris'],
             'payment_proof' => ['nullable', 'image', 'max:3072'],
         ]);
         $cart = $this->cartProducts($request);
@@ -58,6 +59,7 @@ class CheckoutController extends Controller
                 'dp' => $deposit,
                 'remaining' => $paymentDue - $deposit,
                 'payment_type' => $validated['payment_type'],
+                'payment_method' => $validated['payment_method'] ?? null,
                 'payment_proof' => $proofPath,
                 'shipping_cost' => $shippingCost,
             ]);
@@ -69,6 +71,8 @@ class CheckoutController extends Controller
                     'quantity' => $row['quantity'],
                     'unit_price' => $row['product']->price_per_bal,
                     'subtotal' => $row['subtotal'],
+                    'harga_modal_at_purchase' => $row['product']->cost_price,
+                    'harga_jual_at_purchase' => $row['product']->price_per_bal,
                 ]);
             }
 

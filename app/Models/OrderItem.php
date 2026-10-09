@@ -13,6 +13,8 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'subtotal',
+        'harga_modal_at_purchase',
+        'harga_jual_at_purchase',
     ];
 
     protected function casts(): array
@@ -21,6 +23,8 @@ class OrderItem extends Model
             'quantity' => 'integer',
             'unit_price' => 'integer',
             'subtotal' => 'integer',
+            'harga_modal_at_purchase' => 'decimal:2',
+            'harga_jual_at_purchase' => 'decimal:2',
         ];
     }
 

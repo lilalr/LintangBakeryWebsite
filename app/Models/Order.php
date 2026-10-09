@@ -20,6 +20,7 @@ class Order extends Model
         'dp',
         'remaining',
         'payment_type',
+        'payment_method',
         'status',
         'payment_proof',
         'shipping_cost',

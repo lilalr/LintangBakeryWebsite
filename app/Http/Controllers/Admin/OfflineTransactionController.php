@@ -27,7 +27,7 @@ class OfflineTransactionController extends Controller
             'date' => ['required', 'date'],
             'product_id' => ['required', 'exists:products,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:10000'],
-            'payment_method' => ['required', 'in:cash,qris-tf'],
+            'payment_method' => ['required', 'in:cash,qris,qris-tf'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -36,11 +36,15 @@ class OfflineTransactionController extends Controller
             abort_unless(in_array($product->sales_channel, ['offline', 'both'], true), 422, 'Produk tidak tersedia untuk transaksi offline.');
             abort_if($product->stock < $validated['quantity'], 422, 'Stok produk tidak mencukupi.');
 
-            $subtotal = $product->price_per_bal * $validated['quantity'];
+            $quantity = $validated['quantity'];
+            $subtotal = $product->price_per_bal * $quantity;
+            $totalHpp = (float) $product->cost_price * $quantity;
             $transaction = OfflineTransaction::create([
                 'buyer_name' => $validated['buyer_name'],
                 'date' => $validated['date'],
                 'total' => $subtotal,
+                'total_hpp' => $totalHpp,
+                'total_laba' => $subtotal - $totalHpp,
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -50,6 +54,8 @@ class OfflineTransactionController extends Controller
                 'quantity' => $validated['quantity'],
                 'unit_price' => $product->price_per_bal,
                 'subtotal' => $subtotal,
+                'harga_modal_at_purchase' => $product->cost_price,
+                'harga_jual_at_purchase' => $product->price_per_bal,
             ]);
             $product->decrement('stock', $validated['quantity']);
         });

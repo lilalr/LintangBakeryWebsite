@@ -11,6 +11,7 @@ class Product extends Model
         'name',
         'description',
         'price_per_bal',
+        'cost_price',
         'image',
         'category',
         'sales_channel',
@@ -21,6 +22,7 @@ class Product extends Model
     {
         return [
             'price_per_bal' => 'integer',
+            'cost_price' => 'decimal:2',
             'stock' => 'integer',
         ];
     }

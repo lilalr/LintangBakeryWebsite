@@ -55,6 +55,7 @@ class ProductController extends Controller
             'category' => ['required', 'string', 'max:100'],
             'description' => ['required', 'string', 'max:3000'],
             'price_per_bal' => ['required', 'integer', 'min:1'],
+            'cost_price' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
             'image' => ['nullable', 'url', 'max:1000'],
             'sales_channel' => ['required', 'in:online,offline,both'],
             'stock' => ['required', 'integer', 'min:0'],
