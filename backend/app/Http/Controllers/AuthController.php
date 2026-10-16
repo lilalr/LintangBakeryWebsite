@@ -52,7 +52,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('buyer.dashboard')->with('success', 'Akun berhasil dibuat.');
+        return redirect()->intended(route('buyer.dashboard'))->with('success', 'Akun berhasil dibuat.');
     }
 
     public function logout(Request $request): RedirectResponse

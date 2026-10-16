@@ -54,6 +54,104 @@ class StorefrontAndRolesTest extends TestCase
         ]);
     }
 
+    public function test_guest_can_add_products_to_cart_and_see_the_cart_count(): void
+    {
+        $product = Product::create([
+            'name' => 'Nastar Demo',
+            'category' => 'Kue Lebaran',
+            'description' => 'Nastar dengan selai nanas.',
+            'price_per_bal' => 80000,
+            'sales_channel' => 'both',
+            'stock' => 100,
+        ]);
+
+        $this->post(route('cart.store', $product), ['quantity' => 2])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('cart', [$product->id => 2]);
+
+        $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertSee('Nastar Demo')
+            ->assertSee('aria-label="Keranjang belanja, 2 produk"', false);
+    }
+
+    public function test_cart_quantity_uses_plus_and_minus_controls_and_shows_feedback(): void
+    {
+        $product = Product::create([
+            'name' => 'Nastar Demo',
+            'category' => 'Kue Lebaran',
+            'description' => 'Nastar dengan selai nanas.',
+            'price_per_bal' => 80000,
+            'sales_channel' => 'both',
+            'stock' => 100,
+        ]);
+
+        $this->post(route('cart.store', $product), ['quantity' => 2]);
+
+        $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertSee('class="quantity-control"', false)
+            ->assertSee('aria-label="Kurangi jumlah"', false)
+            ->assertSee('aria-label="Tambah jumlah"', false)
+            ->assertSee('aria-label="Tutup notifikasi"', false)
+            ->assertDontSee('>Ubah</button>', false);
+
+        $this->patch(route('cart.update', $product), ['quantity' => 3])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('cart', [$product->id => 3]);
+
+        $this->patch(route('cart.update', $product), ['quantity' => 2])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('cart', [$product->id => 2]);
+
+        $this->patch(route('cart.update', $product), ['quantity' => 1])
+            ->assertRedirect(route('cart.index'));
+
+        $this->get(route('cart.index'))
+            ->assertSee('aria-label="Kurangi jumlah" disabled', false);
+    }
+
+    public function test_guest_is_prompted_to_login_before_checkout_and_returns_to_checkout(): void
+    {
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $product = Product::create([
+            'name' => 'Nastar Demo',
+            'category' => 'Kue Lebaran',
+            'description' => 'Nastar dengan selai nanas.',
+            'price_per_bal' => 80000,
+            'sales_channel' => 'both',
+            'stock' => 100,
+        ]);
+
+        $this->post(route('cart.store', $product), ['quantity' => 1]);
+
+        $this->get(route('checkout.index'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('url.intended', route('checkout.index'));
+
+        $this->post(route('login.store'), [
+            'email' => $buyer->email,
+            'password' => 'password',
+        ])->assertRedirect(route('checkout.index'))
+            ->assertSessionHas('cart', [$product->id => 1]);
+
+        $this->get(route('checkout.index'))->assertOk();
+    }
+
+    public function test_registration_keeps_guest_checkout_as_the_intended_destination(): void
+    {
+        $this->get(route('checkout.index'))->assertRedirect(route('login'));
+
+        $this->post(route('register.store'), [
+            'name' => 'Pengguna Baru',
+            'email' => 'checkout@example.test',
+            'phone' => '08123456789',
+            'address' => 'Yogyakarta',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect(route('checkout.index'));
+    }
+
     public function test_buyer_can_place_an_order_from_the_cart(): void
     {
         $buyer = User::factory()->create(['role' => 'buyer']);

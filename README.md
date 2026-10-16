@@ -2,24 +2,49 @@
 
 Aplikasi toko Lintang Bakery menggunakan Laravel 13, PHP 8.3, Blade, dan SQLite. Area user dan admin memiliki route, layout, controller, serta view yang terpisah.
 
-## Menjalankan aplikasi
+## Cara menjalankan aplikasi
 
-Pastikan PHP 8.3+, Composer, Node.js, dan npm tersedia.
+Pastikan PHP 8.3+, Composer, Node.js, dan npm sudah terpasang. Buka folder proyek ini di VS Code, lalu buka terminal baru. Perintah di bawah menggunakan PowerShell.
+
+### Pertama kali menjalankan proyek
+
+Jalankan perintah berikut satu per satu dari folder utama proyek:
 
 ```powershell
-Set-Location backend
+Set-Location .\backend
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 composer install
 if (-not (Test-Path 'database\database.sqlite')) { New-Item -ItemType File 'database\database.sqlite' | Out-Null }
 php artisan key:generate
 npm --prefix ..\frontend install
 php artisan migrate --seed
-php artisan storage:link
+if (-not (Test-Path 'public\storage')) { php artisan storage:link }
 npm --prefix ..\frontend run build
+```
+
+### Menjalankan aplikasi berikutnya
+
+Setiap kali ingin menggunakan aplikasi, buka terminal di VS Code dan jalankan:
+
+```powershell
+Set-Location .\backend
 php artisan serve
 ```
 
-Buka `http://127.0.0.1:8000`.
+Biarkan terminal tersebut tetap terbuka, lalu buka `http://127.0.0.1:8000` di browser.
+
+### Jika sedang mengubah CSS atau JavaScript
+
+Build dari langkah pertama sudah cukup untuk menjalankan aplikasi. Jika sedang mengedit CSS atau JavaScript dan ingin melihat perubahan secara langsung, buka **terminal kedua** di VS Code, lalu jalankan:
+
+```powershell
+Set-Location .\frontend
+npm run dev
+```
+
+Biarkan kedua terminal tetap terbuka saat bekerja. Hentikan server dengan menekan `Ctrl+C` di masing-masing terminal.
+
+> `php artisan key:generate` dan `php artisan migrate --seed` cukup dijalankan saat menyiapkan proyek pertama kali. Jangan membuat `APP_KEY` baru setiap kali menjalankan aplikasi.
 
 ## Akun demo
 
