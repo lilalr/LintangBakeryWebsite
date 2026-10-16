@@ -7,14 +7,15 @@ Aplikasi toko Lintang Bakery menggunakan Laravel 13, PHP 8.3, Blade, dan SQLite.
 Pastikan PHP 8.3+, Composer, Node.js, dan npm tersedia.
 
 ```powershell
+Set-Location backend
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 composer install
 if (-not (Test-Path 'database\database.sqlite')) { New-Item -ItemType File 'database\database.sqlite' | Out-Null }
 php artisan key:generate
-npm install
+npm --prefix ..\frontend install
 php artisan migrate --seed
 php artisan storage:link
-npm run build
+npm --prefix ..\frontend run build
 php artisan serve
 ```
 
@@ -32,8 +33,9 @@ Gunakan akun demo hanya untuk pengembangan lokal. Ganti password dan konfigurasi
 - User: `/`, `/produk`, `/keranjang`, `/checkout`, `/akun`
 - Admin: `/admin`, `/admin/produk`, `/admin/stok`, `/admin/pesanan`, `/admin/transaksi-offline`, `/admin/laporan`
 - Pengamanan role admin/user dilakukan di server melalui middleware; pendaftaran akun publik hanya membuat role user.
-- `app/Models`, `app/Http/Controllers`, dan `database/migrations` berisi logika serta skema data.
-- `resources/views/store` berisi tampilan user; `resources/views/admin` berisi tampilan admin; `resources/views/layouts` berisi layout keduanya.
-- Sumber prototype React lama disimpan di `legacy-react/` sebagai referensi dan tidak digunakan oleh Laravel.
+- `backend/app/Models`, `backend/app/Http/Controllers`, dan `backend/database/migrations` berisi logika serta skema data.
+- `frontend/resources/views/store` berisi tampilan user; `frontend/resources/views/admin` berisi tampilan admin; `frontend/resources/views/layouts` berisi layout keduanya.
+- `frontend/resources/css` dan `frontend/resources/js` berisi aset aplikasi Laravel.
+- Sumber prototype React lama disimpan di `frontend/legacy-react/` sebagai referensi dan tidak digunakan oleh Laravel.
 
-Database lokal menggunakan SQLite (`database/database.sqlite`). Setelah perubahan skema, jalankan `php artisan migrate`.
+Database lokal menggunakan SQLite (`backend/database/database.sqlite`). Jalankan perintah Artisan dari folder `backend`; setelah perubahan skema, jalankan `php artisan migrate`.
