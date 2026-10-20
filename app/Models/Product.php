@@ -16,6 +16,7 @@ class Product extends Model
         'category',
         'sales_channel',
         'stock',
+        'min_stock',
     ];
 
     protected function casts(): array
@@ -24,11 +25,17 @@ class Product extends Model
             'price_per_bal' => 'integer',
             'cost_price' => 'decimal:2',
             'stock' => 'integer',
+            'min_stock' => 'integer',
         ];
     }
 
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function stockMutations(): HasMany
+    {
+        return $this->hasMany(StockMutation::class);
     }
 }

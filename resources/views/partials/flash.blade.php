@@ -1,4 +1,4 @@
-@if (session('success'))
+@if (session('success') && !request()->routeIs('admin.transactions.*'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif
 @if (session('error'))

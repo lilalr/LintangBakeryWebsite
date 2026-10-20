@@ -32,7 +32,36 @@ class OrderController extends Controller
         $validated = $request->validate([
             'status' => ['required', 'in:'.implode(',', self::STATUSES)],
         ]);
-        $order->update($validated);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $validated): void {
+            $shippedStatuses = ['Sedang Dikirim', 'Sudah Sampai', 'Selesai/Lunas'];
+            if (in_array($validated['status'], $shippedStatuses, true) && ! $order->stock_deducted) {
+                foreach ($order->items as $item) {
+                    if ($item->product_id) {
+                        $product = \App\Models\Product::find($item->product_id);
+                        if ($product) {
+                            $product->decrement('stock', $item->quantity);
+                            \App\Models\StockMutation::create([
+                                'product_id' => $product->id,
+                                'user_id' => auth()->id(),
+                                'admin_name' => auth()->user()?->name ?? 'Admin',
+                                'type' => 'out',
+                                'quantity' => $item->quantity,
+                                'balance' => $product->fresh()->stock,
+                                'reason' => 'Penjualan online',
+                                'reference_number' => $order->code,
+                                'mutation_date' => now()->toDateString(),
+                                'notes' => 'Pesanan online dikirim ke '.$order->buyer.' ('.$order->city.')',
+                            ]);
+                        }
+                    }
+                }
+                $order->stock_deducted = true;
+            }
+
+            $order->status = $validated['status'];
+            $order->save();
+        });
 
         return back()->with('success', 'Status pesanan diperbarui.');
     }

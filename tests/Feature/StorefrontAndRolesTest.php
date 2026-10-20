@@ -125,7 +125,7 @@ class StorefrontAndRolesTest extends TestCase
         ]);
     }
 
-    public function test_accounting_report_shows_profit_and_can_be_exported_to_excel_compatible_csv(): void
+    public function test_sales_report_summarizes_the_period_and_exports_a_csv(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $product = Product::create([
@@ -162,18 +162,52 @@ class StorefrontAndRolesTest extends TestCase
             ->firstOrFail()->update(['status' => 'Sedang Diproduksi']);
 
         $this->actingAs($admin);
-        $this->get(route('admin.reports.index', ['period' => now()->format('Y-m')]))
+        $report = $this->get(route('admin.reports.index', ['period' => now()->format('Y-m')]))
             ->assertOk()
-            ->assertSee('Rp 180.000,00')
-            ->assertSee('Rp 280.000,00')
-            ->assertSee('Rp 90.000,00')
-            ->assertSee('Rp 190.000,00')
-            ->assertSee('Rp 58.500,00')
+            ->assertViewHas('totalTransactions', 2)
+            ->assertViewHas('totalItemsSold', 3)
+            ->assertSee('Pembayaran')
+            ->assertSee('Jumlah transaksi')
+            ->assertSee('Penjualan harian')
+            ->assertSee('Produk terlaris')
+            ->assertSee('Rp 180.000')
+            ->assertSee('Rp 280.000')
+            ->assertSee('Total Penjualan (Kotor)')
             ->assertSee('Nastar Akuntansi');
+        $report->assertDontSee('Total modal (HPP)');
+        $report->assertDontSee('Laba kotor');
 
         $export = $this->get(route('admin.reports.export', ['period' => now()->format('Y-m')]))
             ->assertOk()
             ->assertHeader('content-type', 'text/csv; charset=UTF-8');
         $this->assertStringContainsString('Nastar Akuntansi', $export->streamedContent());
+        $this->assertStringContainsString('Total Penjualan (Kotor)', $export->streamedContent());
+    }
+
+    public function test_admin_can_view_customers_list_and_details(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $buyer = User::factory()->create([
+            'role' => 'buyer',
+            'name' => 'Budi Santoso',
+            'email' => 'budi@example.com',
+            'phone' => '081299887766',
+            'address' => 'Jl. Malioboro No. 10, Yogyakarta',
+        ]);
+
+        $this->actingAs($admin);
+
+        $this->get(route('admin.customers.index'))
+            ->assertOk()
+            ->assertSee('Data Pelanggan')
+            ->assertSee('Budi Santoso')
+            ->assertSee('budi@example.com')
+            ->assertSee('081299887766');
+
+        $this->get(route('admin.customers.show', $buyer))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertSee('budi@example.com')
+            ->assertSee('Jl. Malioboro No. 10, Yogyakarta');
     }
 }

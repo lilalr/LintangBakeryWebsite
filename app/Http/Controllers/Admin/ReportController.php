@@ -31,7 +31,7 @@ class ReportController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $report = $this->reportData($request);
-        $filename = 'laporan-akuntansi-'.$report['startDate'].'-'.$report['endDate'].'.csv';
+        $filename = 'laporan-penjualan-'.$report['startDate'].'-'.$report['endDate'].'.csv';
 
         return response()->streamDownload(function () use ($report): void {
             $output = fopen('php://output', 'w');
@@ -40,14 +40,12 @@ class ReportController extends Controller
             }
 
             fwrite($output, "\xEF\xBB\xBF");
-            fputcsv($output, ['Laporan Akuntansi Lintang Bakery'], ',', '"', '\\');
+            fputcsv($output, ['Laporan Penjualan Lintang Bakery'], ',', '"', '\\');
             fputcsv($output, ['Periode', $report['startDate'].' s.d. '.$report['endDate']], ',', '"', '\\');
-            fputcsv($output, ['Total Pendapatan', number_format($report['totalRevenue'], 2, '.', '')], ',', '"', '\\');
-            fputcsv($output, ['Total HPP', number_format($report['totalHpp'], 2, '.', '')], ',', '"', '\\');
-            fputcsv($output, ['Laba Kotor', number_format($report['grossProfit'], 2, '.', '')], ',', '"', '\\');
+            fputcsv($output, ['Total Penjualan (Kotor)', number_format($report['totalRevenue'], 2, '.', '')], ',', '"', '\\');
             fputcsv($output, [], ',', '"', '\\');
             fputcsv($output, ['Rincian Harian'], ',', '"', '\\');
-            fputcsv($output, ['Tanggal', 'Omzet Online', 'Omzet Offline', 'Total Omzet', 'Tunai Offline', 'QRIS Offline', 'Transfer Online', 'QRIS Online', 'Online Lainnya'], ',', '"', '\\');
+            fputcsv($output, ['Tanggal', 'Penjualan Online', 'Penjualan Kasir', 'Total Penjualan', 'Tunai Kasir', 'QRIS Kasir', 'Transfer Online', 'QRIS Online', 'Online Lainnya'], ',', '"', '\\');
 
             foreach ($report['dailyBreakdown'] as $row) {
                 fputcsv($output, [
@@ -65,14 +63,13 @@ class ReportController extends Controller
 
             fputcsv($output, [], ',', '"', '\\');
             fputcsv($output, ['Performa Produk'], ',', '"', '\\');
-            fputcsv($output, ['Produk', 'Jumlah Terjual', 'Omzet Produk', 'Laba Kotor Produk'], ',', '"', '\\');
+            fputcsv($output, ['Produk', 'Jumlah Terjual', 'Penjualan Produk'], ',', '"', '\\');
 
             foreach ($report['bestSellers'] as $product) {
                 fputcsv($output, [
                     $product['name'],
                     $product['quantity'],
                     number_format($product['revenue'], 2, '.', ''),
-                    number_format($product['profit'], 2, '.', ''),
                 ], ',', '"', '\\');
             }
 
@@ -119,6 +116,7 @@ class ReportController extends Controller
             ->get();
 
         $daily = [];
+        $monthly = [];
         $salesByProduct = [];
         $onlineRevenue = 0.0;
         $offlineRevenue = (float) $transactions->sum('total');
@@ -126,10 +124,15 @@ class ReportController extends Controller
 
         foreach ($revenueOrders as $order) {
             $date = $order->created_at->toDateString();
+            $month = $order->created_at->format('Y-m');
             $this->initializeDailyRow($daily, $date);
+            $this->initializeMonthlyRow($monthly, $month);
+            $daily[$date]['transactions']++;
+            $monthly[$month]['transactions']++;
             $revenue = (float) $order->total + (float) $order->shipping_cost;
             $onlineRevenue += $revenue;
             $daily[$date]['online'] += $revenue;
+            $monthly[$month]['online'] += $revenue;
 
             $collected = $order->payment_type === 'dp'
                 && $order->status !== 'Selesai/Lunas'
@@ -144,14 +147,21 @@ class ReportController extends Controller
 
             foreach ($order->items as $item) {
                 $this->addProductSale($salesByProduct, $item);
+                $daily[$date]['items'] += (int) $item->quantity;
+                $monthly[$month]['items'] += (int) $item->quantity;
                 $totalHpp += (float) $item->harga_modal_at_purchase * $item->quantity;
             }
         }
 
         foreach ($transactions as $transaction) {
             $date = $transaction->date->toDateString();
+            $month = Carbon::parse($transaction->date)->format('Y-m');
             $this->initializeDailyRow($daily, $date);
+            $this->initializeMonthlyRow($monthly, $month);
+            $daily[$date]['transactions']++;
+            $monthly[$month]['transactions']++;
             $daily[$date]['offline'] += (float) $transaction->total;
+            $monthly[$month]['offline'] += (float) $transaction->total;
             $paymentColumn = in_array($transaction->payment_method, ['qris', 'qris-tf'], true)
                 ? 'store_qris'
                 : 'cash';
@@ -159,6 +169,8 @@ class ReportController extends Controller
 
             foreach ($transaction->items as $item) {
                 $this->addProductSale($salesByProduct, $item);
+                $daily[$date]['items'] += (int) $item->quantity;
+                $monthly[$month]['items'] += (int) $item->quantity;
                 $totalHpp += (float) $item->harga_modal_at_purchase * $item->quantity;
             }
         }
@@ -167,31 +179,197 @@ class ReportController extends Controller
             ->sortByDesc('quantity')
             ->values();
         $totalRevenue = $onlineRevenue + $offlineRevenue;
+        $dailyBreakdown = collect($daily)->sortKeys()->values();
+        $paymentBreakdown = [
+            ['label' => 'Tunai kasir', 'amount' => (float) $dailyBreakdown->sum('cash')],
+            ['label' => 'QRIS kasir', 'amount' => (float) $dailyBreakdown->sum('store_qris')],
+            ['label' => 'Transfer online', 'amount' => (float) $dailyBreakdown->sum('online_bank_transfer')],
+            ['label' => 'QRIS online', 'amount' => (float) $dailyBreakdown->sum('online_qris')],
+            ['label' => 'Online lainnya', 'amount' => (float) $dailyBreakdown->sum('online_other')],
+        ];
+
+        // Daftar detail per transaksi (Kasir & Online)
+        $transactionDetails = collect();
+
+        foreach ($revenueOrders as $order) {
+            $orderRevenue = (float) $order->total + (float) $order->shipping_cost;
+            $orderHpp = (float) $order->items->sum(fn ($i) => (float) ($i->harga_modal_at_purchase ?? 0) * (int) $i->quantity);
+            $transactionDetails->push([
+                'id' => 'ord_'.$order->id,
+                'code' => $order->code,
+                'source' => 'Online',
+                'buyer' => $order->buyer,
+                'phone' => $order->phone,
+                'date' => $order->created_at,
+                'date_formatted' => $order->created_at->translatedFormat('d M Y, H:i'),
+                'payment_method' => match ($order->payment_method) {
+                    'bank_transfer' => 'Transfer Bank',
+                    'qris' => 'QRIS Online',
+                    default => 'Online Lainnya',
+                },
+                'payment_type' => strtoupper($order->payment_type),
+                'status' => $order->status,
+                'total_revenue' => $orderRevenue,
+                'total_hpp' => $orderHpp,
+                'gross_profit' => $orderRevenue - $orderHpp,
+                'notes' => $order->city ? ($order->address.', '.$order->city) : null,
+                'items' => $order->items->map(fn ($item) => [
+                    'name' => $item->name,
+                    'quantity' => (int) $item->quantity,
+                    'unit_price' => (float) $item->unit_price,
+                    'subtotal' => (float) $item->subtotal,
+                    'cost_price' => (float) ($item->harga_modal_at_purchase ?? 0),
+                ])->values(),
+            ]);
+        }
+
+        foreach ($transactions as $tx) {
+            $txHpp = (float) $tx->total_hpp;
+            $txTotal = (float) $tx->total;
+            $transactionDetails->push([
+                'id' => 'pos_'.$tx->id,
+                'code' => 'TRX-'.$tx->id,
+                'source' => 'Kasir',
+                'buyer' => $tx->buyer_name,
+                'phone' => '-',
+                'date' => $tx->created_at ?? $tx->date,
+                'date_formatted' => Carbon::parse($tx->date)->translatedFormat('d M Y').($tx->created_at ? ', '.$tx->created_at->format('H:i') : ''),
+                'payment_method' => in_array($tx->payment_method, ['qris', 'qris-tf'], true) ? 'QRIS Kasir' : 'Tunai Kasir',
+                'payment_type' => 'LUNAS',
+                'status' => 'Selesai',
+                'total_revenue' => $txTotal,
+                'total_hpp' => $txHpp,
+                'gross_profit' => (float) ($tx->total_laba ?: ($txTotal - $txHpp)),
+                'notes' => $tx->notes,
+                'items' => $tx->items->map(fn ($item) => [
+                    'name' => $item->name,
+                    'quantity' => (int) $item->quantity,
+                    'unit_price' => (float) $item->unit_price,
+                    'subtotal' => (float) $item->subtotal,
+                    'cost_price' => (float) ($item->harga_modal_at_purchase ?? 0),
+                ])->values(),
+            ]);
+        }
+
+        $transactionDetails = $transactionDetails->sortByDesc('date')->values()->map(function ($item, $idx) {
+            $item['global_index'] = $idx;
+            $item['date_day'] = \Carbon\Carbon::parse($item['date'])->toDateString();
+            return $item;
+        });
+
+        $transactionsByDate = $transactionDetails->groupBy('date_day');
+
+        // Hitung data grafik harian (timeline kontinu jika <= 62 hari)
+        $startCarbon = Carbon::parse($startDate);
+        $endCarbon = Carbon::parse($endDate);
+        $dayDiff = $startCarbon->diffInDays($endCarbon);
+
+        $dailyChartRows = collect($daily)->sortKeys();
+        if ($dayDiff <= 62) {
+            $periodDays = collect();
+            $curr = $startCarbon->copy();
+            while ($curr->lte($endCarbon)) {
+                $dStr = $curr->toDateString();
+                $periodDays[$dStr] = $daily[$dStr] ?? [
+                    'date' => $dStr,
+                    'transactions' => 0,
+                    'items' => 0,
+                    'online' => 0.0,
+                    'offline' => 0.0,
+                ];
+                $curr->addDay();
+            }
+            $dailyChartRows = $periodDays;
+        }
+
+        $chartDaily = [
+            'labels' => $dailyChartRows->map(fn ($r) => Carbon::parse($r['date'])->translatedFormat('d M'))->values(),
+            'dates' => $dailyChartRows->pluck('date')->values(),
+            'total' => $dailyChartRows->map(fn ($r) => (float) ($r['online'] + $r['offline']))->values(),
+            'online' => $dailyChartRows->pluck('online')->values(),
+            'offline' => $dailyChartRows->pluck('offline')->values(),
+            'transactions' => $dailyChartRows->pluck('transactions')->values(),
+        ];
+
+        // Hitung data grafik bulanan
+        $monthlyRows = collect($monthly)->sortKeys();
+        $monthSpan = $startCarbon->diffInMonths($endCarbon);
+        if ($monthSpan >= 1 && $monthSpan <= 24) {
+            $periodMonths = collect();
+            $currMonth = $startCarbon->copy()->startOfMonth();
+            while ($currMonth->lte($endCarbon)) {
+                $mStr = $currMonth->format('Y-m');
+                $periodMonths[$mStr] = $monthly[$mStr] ?? [
+                    'month' => $mStr,
+                    'transactions' => 0,
+                    'items' => 0,
+                    'online' => 0.0,
+                    'offline' => 0.0,
+                ];
+                $currMonth->addMonth();
+            }
+            $monthlyRows = $periodMonths;
+        } elseif ($monthlyRows->isEmpty()) {
+            $mStr = $startCarbon->format('Y-m');
+            $monthlyRows = collect([
+                $mStr => [
+                    'month' => $mStr,
+                    'transactions' => 0,
+                    'items' => 0,
+                    'online' => 0.0,
+                    'offline' => 0.0,
+                ],
+            ]);
+        }
+
+        $chartMonthly = [
+            'labels' => $monthlyRows->keys()->map(fn ($m) => Carbon::createFromFormat('!Y-m', $m)->translatedFormat('M Y'))->values(),
+            'months' => $monthlyRows->keys()->values(),
+            'total' => $monthlyRows->map(fn ($r) => (float) ($r['online'] + $r['offline']))->values(),
+            'online' => $monthlyRows->pluck('online')->values(),
+            'offline' => $monthlyRows->pluck('offline')->values(),
+            'transactions' => $monthlyRows->pluck('transactions')->values(),
+        ];
+
+        $chartData = [
+            'daily' => $chartDaily,
+            'monthly' => $chartMonthly,
+            'labels' => $chartDaily['labels'],
+            'dates' => $chartDaily['dates'],
+            'total' => $chartDaily['total'],
+            'online' => $chartDaily['online'],
+            'offline' => $chartDaily['offline'],
+            'transactions' => $chartDaily['transactions'],
+        ];
 
         return [
-            'orders' => $orders,
-            'transactions' => $transactions,
             'onlineRevenue' => $onlineRevenue,
             'offlineRevenue' => $offlineRevenue,
             'totalRevenue' => $totalRevenue,
             'totalHpp' => $totalHpp,
             'grossProfit' => $totalRevenue - $totalHpp,
-            'dailyBreakdown' => collect($daily)->sortKeys()->values(),
+            'totalTransactions' => $dailyBreakdown->sum('transactions'),
+            'totalItemsSold' => $dailyBreakdown->sum('items'),
+            'paymentBreakdown' => $paymentBreakdown,
+            'dailyBreakdown' => $dailyBreakdown,
             'bestSellers' => $bestSellers,
-            'maxProductQuantity' => max(1, (int) $bestSellers->max('quantity')),
-            'filters' => $filters,
+            'transactionDetails' => $transactionDetails,
+            'transactionsByDate' => $transactionsByDate,
+            'chartData' => $chartData,
             'startDate' => $startDate,
             'endDate' => $endDate,
         ];
     }
 
     /**
-     * @param  array<string, array<string, float|string>>  $daily
+     * @param  array<string, array<string, float|int|string>>  $daily
      */
     private function initializeDailyRow(array &$daily, string $date): void
     {
         $daily[$date] ??= [
             'date' => $date,
+            'transactions' => 0,
+            'items' => 0,
             'online' => 0.0,
             'offline' => 0.0,
             'cash' => 0.0,
@@ -199,6 +377,20 @@ class ReportController extends Controller
             'online_bank_transfer' => 0.0,
             'online_qris' => 0.0,
             'online_other' => 0.0,
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, float|int|string>>  $monthly
+     */
+    private function initializeMonthlyRow(array &$monthly, string $month): void
+    {
+        $monthly[$month] ??= [
+            'month' => $month,
+            'transactions' => 0,
+            'items' => 0,
+            'online' => 0.0,
+            'offline' => 0.0,
         ];
     }
 

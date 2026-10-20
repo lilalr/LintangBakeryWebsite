@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OfflineTransactionController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StorefrontController::class, 'index'])->name('store.home');
-Route::get('/produk', [StorefrontController::class, 'index'])->name('store.products');
+Route::get('/produk', [StorefrontController::class, 'catalog'])->name('store.products');
 Route::get('/produk/{product}', [StorefrontController::class, 'show'])->name('store.product');
 
 Route::get('/masuk', [AuthController::class, 'showLogin'])->name('login');
@@ -39,9 +40,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('produk', AdminProductController::class)->except(['show'])->parameters(['produk' => 'product']);
     Route::get('/stok', [StockController::class, 'index'])->name('stock.index');
+    Route::post('/stok/masuk', [StockController::class, 'storeInbound'])->name('stock.inbound');
+    Route::post('/stok/keluar', [StockController::class, 'storeOutbound'])->name('stock.outbound');
     Route::patch('/stok/{product}', [StockController::class, 'update'])->name('stock.update');
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::patch('/pesanan/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
+    Route::get('/pelanggan', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/pelanggan/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/transaksi-offline', [OfflineTransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transaksi-offline', [OfflineTransactionController::class, 'store'])->name('transactions.store');
     Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');

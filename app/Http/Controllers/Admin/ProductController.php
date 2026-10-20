@@ -50,15 +50,22 @@ class ProductController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
-            'category' => ['required', 'string', 'max:100'],
+            'category' => ['nullable', 'string', 'max:100'],
             'description' => ['required', 'string', 'max:3000'],
             'price_per_bal' => ['required', 'integer', 'min:1'],
-            'cost_price' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
+            'cost_price' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'image' => ['nullable', 'url', 'max:1000'],
-            'sales_channel' => ['required', 'in:online,offline,both'],
+            'sales_channel' => ['nullable', 'in:online,offline,both'],
             'stock' => ['required', 'integer', 'min:0'],
+            'min_stock' => ['nullable', 'integer', 'min:0'],
         ]);
+
+        $data['category'] = $data['category'] ?? 'Kue Kering';
+        $data['sales_channel'] = $data['sales_channel'] ?? 'both';
+        $data['cost_price'] = $data['cost_price'] ?? 0;
+
+        return $data;
     }
 }

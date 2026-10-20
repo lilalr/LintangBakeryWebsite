@@ -24,6 +24,7 @@ class Order extends Model
         'status',
         'payment_proof',
         'shipping_cost',
+        'stock_deducted',
     ];
 
     protected function casts(): array
@@ -33,6 +34,7 @@ class Order extends Model
             'dp' => 'integer',
             'remaining' => 'integer',
             'shipping_cost' => 'integer',
+            'stock_deducted' => 'boolean',
         ];
     }
 

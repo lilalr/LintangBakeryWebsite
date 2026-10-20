@@ -20,10 +20,16 @@ class DashboardController extends Controller
                 + OfflineTransaction::sum('total'),
         ];
         $orders = Order::with('items')->latest()->take(6)->get();
-        $lowStock = Product::where('stock', '<', 50)->orderBy('stock')->get();
+        $lowStock = Product::whereColumn('stock', '<=', 'min_stock')->orderBy('stock')->get();
+        $expiringSoon = \App\Models\StockMutation::with('product')
+            ->where('type', 'in')
+            ->whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [\Carbon\Carbon::today(), \Carbon\Carbon::today()->addDays(14)])
+            ->orderBy('expiry_date')
+            ->get();
 
         $statuses = OrderController::STATUSES;
 
-        return view('admin.dashboard', compact('stats', 'orders', 'lowStock', 'statuses'));
+        return view('admin.dashboard', compact('stats', 'orders', 'lowStock', 'expiringSoon', 'statuses'));
     }
 }

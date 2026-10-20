@@ -9,8 +9,3 @@ node_modules
 /.phpunit.cache
 /.phpunit.result.cache
 /database/database.sqlite
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
