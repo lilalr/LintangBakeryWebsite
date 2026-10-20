@@ -13,15 +13,15 @@
         <nav class="store-nav">
             <a href="{{ route('store.home') }}">Beranda</a>
             <a href="{{ route('store.products') }}">Produk</a>
-            <a class="cart-link" href="{{ route('cart.index') }}" aria-label="Keranjang belanja, {{ $cartItemCount }} produk" title="Keranjang belanja">
+            <a class="cart-link" href="{{ route('cart.index') }}" id="openCartDrawerBtn" aria-label="Keranjang belanja, {{ $cartDrawerCount ?? $cartItemCount }} produk" title="Keranjang belanja">
                 <svg class="cart-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M3 3h2l2.4 12.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                     <circle cx="10" cy="20" r="1" fill="currentColor"/>
                     <circle cx="18" cy="20" r="1" fill="currentColor"/>
                 </svg>
                 <span class="cart-label">Keranjang</span>
-                @if ($cartItemCount > 0)
-                    <span class="cart-count">{{ $cartItemCount > 99 ? '99+' : $cartItemCount }}</span>
+                @if (($cartDrawerCount ?? $cartItemCount) > 0)
+                    <span class="cart-count">{{ ($cartDrawerCount ?? $cartItemCount) > 99 ? '99+' : ($cartDrawerCount ?? $cartItemCount) }}</span>
                 @endif
             </a>
             @auth
@@ -41,5 +41,6 @@
         @yield('content')
     </main>
     <footer class="store-footer"><span>© {{ date('Y') }} Lintang Bakery</span><span>Kue kering premium untuk reseller dan distributor</span></footer>
+    @include('partials.cart-drawer')
 </body>
 </html>

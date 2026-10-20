@@ -24,7 +24,9 @@ class CartController extends Controller
         $cart[$product->id] = ($cart[$product->id] ?? 0) + $validated['quantity'];
         $request->session()->put('cart', $cart);
 
-        return back(fallback: route('cart.index'))->with('success', $product->name.' berhasil ditambahkan ke keranjang.');
+        return back(fallback: route('cart.index'))
+            ->with('open_cart', true)
+            ->with('success', $product->name.' berhasil ditambahkan ke keranjang.');
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -34,7 +36,9 @@ class CartController extends Controller
         $cart[$product->id] = $validated['quantity'];
         $request->session()->put('cart', $cart);
 
-        return redirect()->route('cart.index')->with('success', 'Jumlah produk diperbarui.');
+        return back(fallback: route('cart.index'))
+            ->with('open_cart', true)
+            ->with('success', 'Jumlah produk diperbarui.');
     }
 
     public function destroy(Request $request, Product $product): RedirectResponse
@@ -43,7 +47,9 @@ class CartController extends Controller
         unset($cart[$product->id]);
         $request->session()->put('cart', $cart);
 
-        return redirect()->route('cart.index')->with('success', 'Produk dihapus dari keranjang.');
+        return back(fallback: route('cart.index'))
+            ->with('open_cart', true)
+            ->with('success', 'Produk dihapus dari keranjang.');
     }
 
     private function cartProducts(Request $request): array
