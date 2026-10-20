@@ -34,7 +34,7 @@
         @endforeach
         </tbody></table>
     </div>
-    <div class="cart-summary"><div><span>Total produk</span><strong>Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong></div><p>Ongkos kirim dihitung saat checkout.</p><a class="button" href="{{ auth()->check() ? route('checkout.index') : route('login') }}">Lanjut ke checkout</a></div>
+    <div class="cart-summary"><div><span>Total produk</span><strong>Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong></div><p>Ongkos kirim dihitung saat checkout.</p><a class="button" href="{{ route('checkout.index') }}">Checkout</a></div>
 @else
     <div class="empty-state"><h2>Keranjang masih kosong</h2><p>Yuk, temukan kue favoritmu di katalog.</p><a class="button" href="{{ route('store.products') }}">Lihat produk</a></div>
 @endif

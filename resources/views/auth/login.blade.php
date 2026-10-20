@@ -14,7 +14,7 @@
                     <input type="password" name="password" aria-label="Password" required autocomplete="current-password">
                     <button class="password-toggle" type="button" aria-label="Lihat password" aria-pressed="false">
                         <svg data-password-icon viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
                             <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/>
                         </svg>
                         <svg data-password-icon viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
