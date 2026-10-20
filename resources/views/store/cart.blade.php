@@ -8,9 +8,29 @@
     <div class="table-card">
         <table><thead><tr><th>Produk</th><th>Harga / bal</th><th>Jumlah</th><th>Subtotal</th><th></th></tr></thead><tbody>
         @foreach ($cart as $row)
-            <tr><td><div class="table-product"><img src="{{ $row['product']->image }}" alt=""><strong>{{ $row['product']->name }}</strong></div></td><td>Rp {{ number_format($row['product']->price_per_bal, 0, ',', '.') }}</td>
-                <td><form method="post" action="{{ route('cart.update', $row['product']) }}" class="quantity-form">@csrf @method('PATCH')<input type="number" name="quantity" value="{{ $row['quantity'] }}" min="1" required><button class="button button-small button-light">Ubah</button></form></td>
-                <td><strong>Rp {{ number_format($row['subtotal'], 0, ',', '.') }}</strong></td><td><form method="post" action="{{ route('cart.destroy', $row['product']) }}">@csrf @method('DELETE')<button class="text-danger">Hapus</button></form></td></tr>
+            <tr>
+                <td><div class="table-product"><img src="{{ $row['product']->image }}" alt=""><strong>{{ $row['product']->name }}</strong></div></td>
+                <td>Rp {{ number_format($row['product']->price_per_bal, 0, ',', '.') }}</td>
+                <td>
+                    <div class="quantity-control" aria-label="Jumlah {{ $row['product']->name }}">
+                        <form method="post" action="{{ route('cart.update', $row['product']) }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="quantity" value="{{ max(1, $row['quantity'] - 1) }}">
+                            <button class="quantity-button" type="submit" aria-label="Kurangi jumlah" @disabled($row['quantity'] <= 1)>−</button>
+                        </form>
+                        <span class="quantity-value" aria-live="polite">{{ $row['quantity'] }}</span>
+                        <form method="post" action="{{ route('cart.update', $row['product']) }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="quantity" value="{{ $row['quantity'] + 1 }}">
+                            <button class="quantity-button" type="submit" aria-label="Tambah jumlah" @disabled($row['quantity'] >= 10000)>+</button>
+                        </form>
+                    </div>
+                </td>
+                <td><strong>Rp {{ number_format($row['subtotal'], 0, ',', '.') }}</strong></td>
+                <td><form method="post" action="{{ route('cart.destroy', $row['product']) }}">@csrf @method('DELETE')<button class="text-danger" type="submit">Hapus</button></form></td>
+            </tr>
         @endforeach
         </tbody></table>
     </div>

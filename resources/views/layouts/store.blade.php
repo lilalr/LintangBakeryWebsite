@@ -4,15 +4,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Lintang Bakery')</title>
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+    @php($cartItemCount = array_sum(session('cart', [])))
     <header class="store-header">
         <a class="brand" href="{{ route('store.home') }}"><span class="brand-mark">L</span><span>Lintang Bakery<small>Portal Reseller & Distributor</small></span></a>
         <nav class="store-nav">
             <a href="{{ route('store.home') }}">Beranda</a>
             <a href="{{ route('store.products') }}">Produk</a>
-            <a href="{{ route('cart.index') }}">Keranjang</a>
+            <a class="cart-link" href="{{ route('cart.index') }}" aria-label="Keranjang belanja, {{ $cartItemCount }} produk" title="Keranjang belanja">
+                <svg class="cart-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M3 3h2l2.4 12.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="20" r="1" fill="currentColor"/>
+                    <circle cx="18" cy="20" r="1" fill="currentColor"/>
+                </svg>
+                <span class="cart-label">Keranjang</span>
+                @if ($cartItemCount > 0)
+                    <span class="cart-count">{{ $cartItemCount > 99 ? '99+' : $cartItemCount }}</span>
+                @endif
+            </a>
             @auth
                 @if (auth()->user()->role === 'admin')
                     <a href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
