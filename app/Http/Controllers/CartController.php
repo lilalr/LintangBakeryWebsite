@@ -24,7 +24,7 @@ class CartController extends Controller
         $cart[$product->id] = ($cart[$product->id] ?? 0) + $validated['quantity'];
         $request->session()->put('cart', $cart);
 
-        return redirect()->route('cart.index')->with('success', 'Produk ditambahkan ke keranjang.');
+        return back(fallback: route('cart.index'))->with('success', $product->name.' berhasil ditambahkan ke keranjang.');
     }
 
     public function update(Request $request, Product $product): RedirectResponse

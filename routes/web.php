@@ -29,9 +29,12 @@ Route::post('/keranjang/{product}', [CartController::class, 'store'])->name('car
 Route::patch('/keranjang/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/keranjang/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-Route::middleware(['auth', 'role:buyer'])->group(function () {
+Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+});
+
+Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/akun', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
     Route::put('/akun/profil', [BuyerDashboardController::class, 'update'])->name('buyer.profile.update');
 });

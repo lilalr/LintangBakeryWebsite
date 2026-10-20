@@ -3,7 +3,16 @@
 @section('title', 'Keranjang · Lintang Bakery')
 
 @section('content')
-<section class="page-heading"><span class="eyebrow">PESANAN ANDA</span><h1>Keranjang belanja</h1><p>Periksa jumlah produk sebelum melanjutkan checkout.</p></section>
+<section class="page-heading" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <span class="eyebrow">PESANAN ANDA</span>
+        <h1>Keranjang belanja</h1>
+        <p>Periksa jumlah produk sebelum melanjutkan checkout.</p>
+    </div>
+    @if (count($cart))
+        <a class="button button-light" href="{{ route('store.products') }}">← Tambah Produk Lain</a>
+    @endif
+</section>
 @if (count($cart))
     <div class="table-card">
         <table><thead><tr><th>Produk</th><th>Harga / bal</th><th>Jumlah</th><th>Subtotal</th><th></th></tr></thead><tbody>
@@ -34,7 +43,14 @@
         @endforeach
         </tbody></table>
     </div>
-    <div class="cart-summary"><div><span>Total produk</span><strong>Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong></div><p>Ongkos kirim dihitung saat checkout.</p><a class="button" href="{{ route('checkout.index') }}">Checkout</a></div>
+    <div class="cart-summary">
+        <div><span>Total produk</span><strong>Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong></div>
+        <p>Ongkos kirim dihitung saat checkout.</p>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+            <a class="button" href="{{ route('checkout.index') }}">Lanjut ke Checkout →</a>
+            <a class="button button-light" href="{{ route('store.products') }}" style="margin-top: 0;">Tambah Produk Lain</a>
+        </div>
+    </div>
 @else
     <div class="empty-state"><h2>Keranjang masih kosong</h2><p>Yuk, temukan kue favoritmu di katalog.</p><a class="button" href="{{ route('store.products') }}">Lihat produk</a></div>
 @endif
