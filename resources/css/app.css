@@ -182,13 +182,14 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
 .table-product { display: flex; align-items: center; gap: 10px; min-width: 190px; }
 .table-product img { width: 42px; height: 42px; border-radius: 7px; object-fit: cover; background: var(--cream); }
 .table-product small { max-width: 250px; }
-.quantity-control { display: inline-flex; align-items: center; border: 1px solid #e7ddd3; border-radius: 7px; overflow: hidden; }
-.quantity-control form { margin: 0; }
-.quantity-button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; color: var(--brown); background: #faf6f1; font-size: 18px; line-height: 1; cursor: pointer; }
+.quantity-control { display: inline-flex; align-items: center; border: 1.5px solid #dfd3c5; border-radius: 8px; overflow: hidden; background: white; }
+.quantity-control form { margin: 0; display: flex; }
+.quantity-button { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 0; color: var(--brown); background: #faf6f1; font-size: 16px; font-weight: 700; line-height: 1; cursor: pointer; transition: background .15s ease, color .15s ease; user-select: none; padding: 0; }
 .quantity-button:hover:not(:disabled) { color: white; background: var(--brown); }
-.quantity-button:disabled { color: #bdb2a9; cursor: not-allowed; }
-.quantity-value { min-width: 38px; padding: 0 6px; color: var(--brown-dark); text-align: center; font-size: 13px; font-weight: 650; }
-.text-danger { padding: 4px; border: 0; color: #a24037; background: transparent; font-size: 11px; }
+.quantity-button:disabled { color: #cfc2b7; background: #fdfbf9; cursor: not-allowed; opacity: 0.45; }
+.quantity-value { min-width: 44px; padding: 0 8px; color: var(--brown-dark); text-align: center; font-size: 14px; font-weight: 700; line-height: 32px; }
+.text-danger { padding: 6px 8px; border: 0; color: #a24037; background: transparent; font-size: 11.5px; font-weight: 600; cursor: pointer; border-radius: 5px; transition: background .15s; }
+.text-danger:hover { background: #fdedec; }
 .cart-summary { max-width: 420px; margin: 20px 0 0 auto; padding: 20px; }
 .cart-summary div, .summary-line, .summary-total { display: flex; justify-content: space-between; gap: 15px; }
 .cart-summary p { color: var(--muted); font-size: 11px; }
@@ -416,6 +417,295 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
 .qris-img-wrap { width: 220px; height: 220px; margin: 0 auto 12px; padding: 8px; background: white; border: 1px solid #ddd; border-radius: 8px; display: grid; place-items: center; }
 .qris-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
 .qris-amount-display { font-size: 24px; font-weight: 800; color: var(--brown-dark); margin: 6px 0; font-family: Georgia, serif; }
+
+/* ─── Store Checkout Payment Styles ─── */
+.checkout-payment-box {
+    margin: 14px 0 18px;
+    animation: fadeIn .2s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.payment-type-group {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.choice-card {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: #fffcf9;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.choice-card:hover {
+    border-color: #c5b29f;
+    background: #ffffff;
+}
+.choice-card:has(input:checked) {
+    border-color: var(--brown);
+    background: #fbf5ef;
+    box-shadow: 0 2px 8px rgba(117, 70, 44, 0.08);
+}
+.choice-card input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--brown);
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+}
+.choice-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--brown-dark);
+}
+.choice-desc {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* Transfer Bank Section */
+.bank-instruction-card {
+    background: #fffdfa;
+    border: 1.5px solid #ebd9c7;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(77, 46, 32, 0.04);
+}
+.bank-instruction-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #eadcd0;
+}
+.nominal-tag-wrap {
+    text-align: right;
+    background: #f8efe5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ebd6c4;
+}
+.nominal-highlight {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--brown-dark);
+    font-family: Georgia, serif;
+    display: block;
+    margin: 2px 0 4px;
+}
+.btn-copy-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--brown);
+    background: white;
+    border: 1px solid #d4beaa;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.btn-copy-mini:hover {
+    background: var(--brown);
+    color: white;
+}
+.bank-accounts-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+}
+.bank-account-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: white;
+    border: 1px solid #eadcd0;
+    border-radius: 9px;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.bank-account-item:hover {
+    box-shadow: 0 4px 12px rgba(98, 69, 43, 0.08);
+}
+.bank-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    min-width: 58px;
+    text-align: center;
+}
+.bank-bca { background: #0060af; }
+.bank-bri { background: #00529c; }
+.bank-mandiri { background: #003d79; }
+.bank-info {
+    flex: 1;
+    min-width: 0;
+}
+.bank-acc-num {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: monospace;
+    color: #2b2019;
+    letter-spacing: .06em;
+}
+.bank-acc-name {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+}
+.btn-copy-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--brown);
+    background: #fbf5ef;
+    border: 1px solid #e2cbba;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+}
+.btn-copy-account:hover {
+    background: var(--brown);
+    color: white;
+    border-color: var(--brown);
+}
+.btn-copy-account.copied, .btn-copy-mini.copied {
+    background: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+}
+
+/* QRIS Store Checkout Card */
+.qris-checkout-card {
+    background: white;
+    border: 2px solid #e20613;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(226, 6, 19, 0.07);
+}
+.qris-tag-national {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #e20613;
+    background: #ffebee;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.qris-merchant-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #2d1a12;
+    letter-spacing: .08em;
+    margin-top: 4px;
+}
+.qris-merchant-city {
+    font-size: 10px;
+    color: #888;
+    letter-spacing: .05em;
+    margin-bottom: 10px;
+}
+.qris-amount-wrap {
+    background: #fff8f8;
+    border: 1px solid #fcdad7;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+.qris-amount-label {
+    font-size: 11px;
+    color: #888;
+    display: block;
+}
+.qris-amount-type {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #a24037;
+    background: #ffebe9;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 2px;
+}
+.qris-qr-container {
+    margin: 10px auto;
+}
+.qris-support-logos {
+    font-size: 11px;
+    color: #777;
+    margin: 12px 0;
+    padding-top: 10px;
+    border-top: 1px dashed #f0dede;
+}
+.qris-steps {
+    text-align: left;
+    font-size: 11.5px;
+    color: #63534b;
+    padding-left: 18px;
+    margin: 14px 0 0;
+    line-height: 1.6;
+}
+.payment-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fbf5ee;
+    border: 1px solid #ebd9c7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 14px;
+    font-size: 11.5px;
+    color: #6d5b50;
+    line-height: 1.45;
+}
+.payment-hint svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    stroke: var(--brown);
+    margin-top: 1px;
+}
+.file-upload-preview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f7efe4;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--brown-dark);
+}
+.summary-highlight-row {
+    background: #fcf6ef;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 1px solid #eedecf;
+}
 /* ==========================================================================
    Slide-Over Cart Drawer (Side Cart Popup)
    ========================================================================== */
@@ -554,37 +844,49 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
 .cart-drawer-stepper {
     display: inline-flex;
     align-items: center;
-    border: 1px solid #e2d6c8;
+    border: 1.5px solid #dfd3c5;
     border-radius: 6px;
     background: #fff;
     overflow: hidden;
 }
+.cart-drawer-stepper form {
+    margin: 0;
+    display: flex;
+}
 .cart-drawer-stepper button {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border: none;
-    background: none;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--brown-dark);
-    display: grid;
-    place-items: center;
+    background: #faf6f1;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: background 0.15s ease;
+    line-height: 1;
+    transition: background 0.15s ease, color 0.15s ease;
+    padding: 0;
+    user-select: none;
 }
 .cart-drawer-stepper button:hover:not(:disabled) {
-    background: #fbf5ef;
+    background: var(--brown);
+    color: white;
 }
 .cart-drawer-stepper button:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+    background: #fdfbf9;
 }
 .cart-drawer-stepper span {
-    min-width: 26px;
+    min-width: 32px;
+    padding: 0 4px;
     text-align: center;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--brown-dark);
+    line-height: 28px;
 }
 .cart-drawer-remove {
     font-size: 11px;
@@ -697,6 +999,78 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
     .admin-sidebar { width: 210px; }
     .admin-main { margin-left: 210px; }
     .admin-content { padding: 18px; }
+/* ─── Reseller Minimum Order & Badges ─── */
+.reseller-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fdf2e9;
+    color: #92400e;
+    border: 1px solid #fed7aa;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.reseller-notice-box {
+    background: #fff8f2;
+    border: 1.5px solid #f3cfb3;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+}
+.reseller-notice-box.success {
+    background: #f2f9f3;
+    border-color: #b7e4c0;
+}
+.reseller-progress-wrap {
+    margin-top: 10px;
+}
+.reseller-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #ebd8c8;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.reseller-progress-fill {
+    height: 100%;
+    background: var(--brown);
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+.reseller-progress-fill.full {
+    background: #28a745;
+}
+.qty-preset-btn {
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--brown);
+    background: white;
+    border: 1px solid #dfcfc2;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.qty-preset-btn:hover, .qty-preset-btn.active {
+    background: var(--brown);
+    color: white;
+    border-color: var(--brown);
+}
+.badge-warning-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
 }
 @media (max-width: 650px) {
     .container { width: min(100% - 28px, 1160px); }

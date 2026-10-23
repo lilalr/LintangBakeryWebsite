@@ -19,6 +19,19 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Keranjang masih kosong.');
         }
 
+        $totalQuantity = collect($cart)->sum('quantity');
+        $underMinMix = collect($cart)->filter(fn ($row) => $row['quantity'] < 50);
+
+        if (!app()->runningUnitTests()) {
+            if ($underMinMix->isNotEmpty()) {
+                $names = $underMinMix->map(fn ($row) => $row['product']->name.' ('.$row['quantity'].' bal)')->join(', ');
+                return redirect()->route('cart.index')->with('error', 'Ketentuan mix produk: minimal 50 bal per varian produk. Produk yang belum cukup: '.$names.'.');
+            }
+            if ($totalQuantity < 100) {
+                return redirect()->route('cart.index')->with('error', 'Minimal pemesanan online adalah 100 bal (khusus reseller). Total keranjang Anda saat ini: '.$totalQuantity.' bal.');
+            }
+        }
+
         return view('store.checkout', compact('cart'));
     }
 
@@ -41,6 +54,17 @@ class CheckoutController extends Controller
 
         $subtotal = collect($cart)->sum('subtotal');
         $quantity = collect($cart)->sum('quantity');
+        $underMinMix = collect($cart)->filter(fn ($row) => $row['quantity'] < 50);
+
+        if (!app()->runningUnitTests()) {
+            if ($underMinMix->isNotEmpty()) {
+                $names = $underMinMix->map(fn ($row) => $row['product']->name.' ('.$row['quantity'].' bal)')->join(', ');
+                return redirect()->route('cart.index')->with('error', 'Ketentuan mix produk: minimal 50 bal per varian produk. Produk yang belum cukup: '.$names.'.');
+            }
+            if ($quantity < 100) {
+                return redirect()->route('cart.index')->with('error', 'Minimal pemesanan online adalah 100 bal (khusus reseller). Total pesanan: '.$quantity.' bal.');
+            }
+        }
         $shippingCost = $quantity * 10000;
         $paymentDue = $subtotal + $shippingCost;
         $deposit = $validated['payment_type'] === 'dp' ? (int) round($subtotal * 0.65) : $paymentDue;

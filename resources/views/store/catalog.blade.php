@@ -1,6 +1,6 @@
 @extends('layouts.store')
 
-@section('title', 'Katalog Produk Kue Kering · Lintang Bakery')
+@section('title', 'Katalog Camilan & Kue Kering Grosir · Lintang Bakery')
 
 @section('content')
 <div class="breadcrumbs">
@@ -12,14 +12,14 @@
 <div class="page-heading" style="padding-top:10px; padding-bottom:20px;">
     <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px;">
         <div>
-            <span class="eyebrow">KATALOG RESELLER & DISTRIBUTOR</span>
-            <h1 style="margin:6px 0 10px;">Semua Produk Kue Kering</h1>
-            <p style="color:var(--muted); font-size:14px; max-width:540px;">
-                Kue kering premium Lintang Bakery dalam kemasan bal grosir toples kedap udara. Siap dikirim ke toko dan reseller Anda.
+            <span class="eyebrow">KATALOG GROSIR RESELLER</span>
+            <h1 style="margin:6px 0 10px;">Semua Produk Camilan & Kue Kering</h1>
+            <p style="color:var(--muted); font-size:14px; max-width:580px;">
+                Camilan renyah dan kue kering khas Lintang Bakery dalam kemasan bal grosir. Khusus pemesanan online mitra reseller dengan minimal total <strong>100 bal</strong> (bisa di-mix minimal <strong>50 bal per varian</strong>, contoh 50/50).
             </p>
         </div>
         <div style="min-width:280px; flex:1; max-width:360px;">
-            <input type="text" id="catalogSearch" placeholder="Cari nama kue kering..." style="width:100%; border-radius:99px; padding:10px 18px; border:1px solid var(--line); font-size:13px;" onkeyup="filterCatalog()">
+            <input type="text" id="catalogSearch" placeholder="Cari nama camilan / kue..." style="width:100%; border-radius:99px; padding:10px 18px; border:1px solid var(--line); font-size:13px;" onkeyup="filterCatalog()">
         </div>
     </div>
 </div>
@@ -38,9 +38,9 @@
 </div>
 
 <section class="feature-strip" style="margin-top:60px;">
-    <div><strong>01</strong><h3>Bahan Berkualitas</h3><p>Dibuat dari bahan baku pilihan dengan mentega dan keju asli berkualitas tinggi.</p></div>
-    <div><strong>02</strong><h3>Harga Grosir Bal</h3><p>Harga per bal hemat dan bersahabat untuk reseller dan pedagang toko.</p></div>
-    <div><strong>03</strong><h3>Kemasan Ekstra Aman</h3><p>Dilengkapi bubble wrap tebal dan karton khusus agar kue tetap utuh saat sampai.</p></div>
+    <div><strong>01</strong><h3>Bahan Berkualitas</h3><p>Renyah gurih tahan lama, dibuat higienis dengan resep tradisional pilihan.</p></div>
+    <div><strong>02</strong><h3>Bisa Mix 50/50</h3><p>Minimal order total 100 bal, bisa campur minimal 50 bal per varian produk.</p></div>
+    <div><strong>03</strong><h3>Kemasan Ekstra Aman</h3><p>Dilengkapi kardus tebal dan standar packing kargo agar produk tetap utuh saat sampai.</p></div>
 </section>
 
 <script>

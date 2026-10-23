@@ -210,4 +210,56 @@ class StorefrontAndRolesTest extends TestCase
             ->assertSee('budi@example.com')
             ->assertSee('Jl. Malioboro No. 10, Yogyakarta');
     }
+
+    public function test_online_store_displays_reseller_100_bal_minimum_requirement(): void
+    {
+        $product1 = Product::create([
+            'name' => 'Kue Tambang Reseller Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue tambang renyah.',
+            'price_per_bal' => 85000,
+            'cost_price' => 55000,
+            'sales_channel' => 'both',
+            'stock' => 500,
+        ]);
+        $product2 = Product::create([
+            'name' => 'Kue Keciput Reseller Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue keciput renyah.',
+            'price_per_bal' => 90000,
+            'cost_price' => 60000,
+            'sales_channel' => 'both',
+            'stock' => 500,
+        ]);
+
+        $buyer = User::factory()->create(['role' => 'buyer']);
+
+        // Case 1: When adding 30 bal of product1 (below min mix 50 bal)
+        $this->actingAs($buyer)
+            ->post(route('cart.store', $product1), ['quantity' => 30])
+            ->assertRedirect('/keranjang');
+
+        $response = $this->get(route('cart.index'));
+        $response->assertOk()
+            ->assertSee('Ketentuan Mix Produk: Minimal 50 Bal per Varian')
+            ->assertSee('Min. mix 50 bal');
+
+        // Case 2: Update product1 to 50 bal, but total is 50 bal (below total min 100 bal)
+        $this->post(route('cart.store', $product1), ['quantity' => 20])
+            ->assertRedirect('/keranjang');
+
+        $response2 = $this->get(route('cart.index'));
+        $response2->assertOk()
+            ->assertSee('Total Pembelian Belum Mencapai 100 Bal')
+            ->assertSee('50 / 100 bal');
+
+        // Case 3: Add 50 bal of product2 -> 50/50 mix reaches 100 bal total!
+        $this->post(route('cart.store', $product2), ['quantity' => 50])
+            ->assertRedirect('/keranjang');
+
+        $response3 = $this->get(route('cart.index'));
+        $response3->assertOk()
+            ->assertSee('Syarat Minimal Reseller Terpenuhi!')
+            ->assertSee('Lanjut ke Checkout (100 Bal)');
+    }
 }
