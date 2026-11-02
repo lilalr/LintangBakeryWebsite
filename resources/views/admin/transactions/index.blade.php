@@ -263,36 +263,26 @@
     </div>
 </div>
 
-{{-- MODAL 2: QRIS DINAMIS OTOMATIS --}}
-<div class="pos-modal-overlay" id="qrisModal">
-    <div class="pos-modal-card">
-        <div class="pos-modal-header">
-            <h3>QRIS Dinamis</h3>
-            <button type="button" class="pos-close-btn" onclick="closeModals()">&times;</button>
+{{-- MODAL 2: QRIS DINAMIS MIDTRANS --}}
+<div class="pos-modal-overlay" id="modal-qris">
+    <div class="pos-modal-card" style="max-width: 380px; text-align: center; position: relative;">
+        <button type="button" onclick="closeQrisModal()" class="pos-close-btn">&times;</button>
+        
+        <h3 style="font-size: 18px; font-weight: 700; color: #1a202c; margin-bottom: 8px;">QRIS Dinamis</h3>
+        
+        <div style="border: 2px solid #ef4444; border-radius: 10px; padding: 16px; background-color: #ffffff;">
+            <span style="color: #dc2626; font-weight: 800; font-size: 20px; display: block; margin-bottom: 2px;">QRIS</span>
+            <p style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 4px;">LINTANG BAKERY</p>
+            <p id="qris-total-display" style="font-size: 22px; font-weight: 800; color: #78350f; margin: 8px 0;">Rp 0</p>
+            
+            <div id="qris-loading" style="padding: 30px 0; color: #718096; font-weight: 500;">Meng-generate QRIS...</div>
+            <img id="qris-image" src="" alt="QRIS Code" style="margin: 8px auto; width: 220px; height: 220px; object-fit: contain; display: none;">
+            
+            <p style="font-size: 11px; color: #718096; margin-top: 8px;">Bisa BCA Mobile, GoPay, OVO, ShopeePay, DANA, dll.</p>
         </div>
 
-        <div class="qris-box">
-            <div class="qris-header-badge">
-                <span class="qris-logo">QRIS</span>
-                <span class="qris-nmid">NMID: ID1020261014001</span>
-            </div>
-
-            <div class="qris-merchant-name">LINTANG BAKERY</div>
-            <div class="qris-amount-display" id="modalQrisAmount">Rp 0</div>
-            <p class="muted" style="font-size: 11px; margin: 0 0 10px;">Nominal otomatis terkunci sesuai transaksi</p>
-
-            <div class="qris-img-wrap">
-                <img id="dynamicQrisImage" src="" alt="QRIS Dinamis Lintang Bakery">
-            </div>
-
-            <p style="font-size: 11px; color: var(--muted); margin: 6px 0 0;">
-                Buka BCA Mobile, Livin, GoPay, OVO, ShopeePay, atau Dana, lalu scan QR di atas.
-            </p>
-        </div>
-
-        <button type="button" id="confirmQrisPaymentBtn" class="button button-full" style="background:#218838; border-color:#1e7e34; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-            <svg style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.5;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Konfirmasi Pembayaran QRIS Berhasil</span>
+        <button type="button" onclick="confirmQrisPayment()" class="button button-full" style="margin-top: 14px; background-color: #16a34a; border-color: #16a34a; color: white; font-weight: 700;">
+            ✓ Konfirmasi Pembayaran QRIS Berhasil
         </button>
     </div>
 </div>
@@ -413,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add to Cart
     productCards.forEach(card => {
-        card.addEventListener('click', function(e) {
+        card.addEventListener('click', function() {
             const stock = parseInt(this.dataset.stock, 10);
             if (stock <= 0) return;
 
@@ -441,7 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderCart() {
         const container = document.getElementById('cartItemsContainer');
-        const emptyMsg = document.getElementById('emptyCartMessage');
         const countSpan = document.getElementById('cartCount');
         const subtotalEl = document.getElementById('cartSubtotal');
         const totalEl = document.getElementById('cartTotal');
@@ -538,9 +527,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedPayment === 'cash') {
             openCashModal(total);
         } else if (selectedPayment === 'qris') {
-            openQrisModal(total);
+            handleQrisPayment(total);
         } else {
-            // EDC / Transfer
             if (confirm(`Konfirmasi pembayaran EDC / Transfer sebesar Rp ${total.toLocaleString('id-ID')}?`)) {
                 submitPosTransaction('edc', 'Pembayaran via EDC / Transfer Bank');
             }
@@ -550,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // CASH MODAL LOGIC
     function openCashModal(total) {
         document.getElementById('modalCashTotal').textContent = 'Rp ' + total.toLocaleString('id-ID');
-        receivedCash = 0; // kosongkan, tidak di-default
+        receivedCash = 0;
         updateCashDisplay(total);
         document.getElementById('cashModal').classList.add('active');
         setTimeout(() => {
@@ -635,34 +623,62 @@ document.addEventListener('DOMContentLoaded', function() {
         submitPosTransaction('cash', note);
     });
 
-    // QRIS MODAL LOGIC (OTOMATIS SESUAI JUMLAH TRANSAKSI)
-    function openQrisModal(total) {
-        document.getElementById('modalQrisAmount').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    // QRIS MIDTRANS LOGIC
+    async function handleQrisPayment(totalHarga) {
+        if (!totalHarga || totalHarga <= 0) {
+            alert('Keranjang belanja masih kosong!');
+            return;
+        }
 
-        // Generate dynamic QRIS string with exact transaction amount
-        // Standar QRIS EMVCo Tag 54 (Transaction Amount)
-        const amtStr = total.toString();
-        const amtTag = '54' + ('0' + amtStr.length).slice(-2) + amtStr;
-        const qrisPayload = '00020101021226600016ID.LINKAJA.WWW0118936009110020261014520454995303360' + amtTag + '5802ID5914LINTANG BAKERY6010YOGYAKARTA6304ABCD';
+        const modal = document.getElementById('modal-qris');
+        const loading = document.getElementById('qris-loading');
+        const qrImg = document.getElementById('qris-image');
+        const totalDisplay = document.getElementById('qris-total-display');
 
-        // Load dynamic QR Code via API
-        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(qrisPayload);
-        document.getElementById('dynamicQrisImage').src = qrUrl;
+        totalDisplay.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalHarga);
+        qrImg.style.display = 'none';
+        loading.style.display = 'block';
+        modal.classList.add('active');
 
-        document.getElementById('qrisModal').classList.add('active');
+        try {
+            const response = await fetch('http://localhost:3000/api/generate-qris', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ totalHarga: totalHarga })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                qrImg.src = data.qr_url;
+                loading.style.display = 'none';
+                qrImg.style.display = 'block';
+            } else {
+                alert('Gagal mengambil QRIS: ' + data.message);
+                closeQrisModal();
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Gagal terhubung ke Server QRIS. Pastikan server Node.js (node server.cjs) sedang berjalan di port 3000.');
+            closeQrisModal();
+        }
     }
 
-    document.getElementById('confirmQrisPaymentBtn').addEventListener('click', function() {
+    window.closeQrisModal = function() {
+        document.getElementById('modal-qris').classList.remove('active');
+    };
+
+    window.confirmQrisPayment = function() {
         const total = getCartTotal();
-        const note = `QRIS Dinamis Terverifikasi: Rp ${total.toLocaleString('id-ID')}`;
+        const note = `QRIS Dinamis Midtrans Terverifikasi: Rp ${total.toLocaleString('id-ID')}`;
         submitPosTransaction('qris', note);
-    });
+    };
 
     window.closeModals = function() {
         document.querySelectorAll('.pos-modal-overlay').forEach(m => m.classList.remove('active'));
     };
 
-    // Close modals on clicking overlay backdrop
+    // Backdrop click modal close
     document.querySelectorAll('.pos-modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -671,20 +687,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close modal on Escape key
+    // Escape key modal close
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeModals();
         }
     });
 
-    // Auto focus button when success modal is present
     const closeSuccessBtn = document.getElementById('closeSuccessModalBtn');
     if (closeSuccessBtn) {
         setTimeout(() => closeSuccessBtn.focus(), 100);
     }
 
-    // Submit POS Transaction to Backend
+    // Submit POS Transaction Function
     function submitPosTransaction(method, notes) {
         const form = document.getElementById('posSubmitForm');
         const buyerName = document.getElementById('buyerNameInput').value.trim() || 'Pelanggan Toko';
@@ -703,7 +718,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         });
 
-        // Single item fallback for full legacy compatibility
         if (cart.length === 1) {
             inputsContainer.innerHTML += `
                 <input type="hidden" name="product_id" value="${cart[0].id}">
