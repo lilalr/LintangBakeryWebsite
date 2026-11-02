@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StorefrontAndRolesTest extends TestCase
@@ -64,13 +66,17 @@ class StorefrontAndRolesTest extends TestCase
             ->post(route('cart.store', $product), ['quantity' => 2])
             ->assertRedirect('/keranjang');
 
+        Storage::fake('public');
+
         $this->post(route('checkout.store'), [
             'buyer' => 'Pembeli Demo',
             'phone' => '08123456789',
             'address' => 'Jalan Mawar 1',
-            'city' => 'Yogyakarta',
-            'province' => 'DI Yogyakarta',
+            'city' => 'Kota Yogyakarta',
+            'province' => 'D.I. Yogyakarta',
             'payment_type' => 'dp',
+            'payment_method' => 'bank_transfer',
+            'payment_proof' => UploadedFile::fake()->image('bukti_transfer.jpg'),
         ])->assertRedirect('/akun')->assertSessionMissing('cart');
 
         $this->assertDatabaseHas('orders', [
@@ -153,10 +159,11 @@ class StorefrontAndRolesTest extends TestCase
             'buyer' => 'Pembeli DP',
             'phone' => '08123456789',
             'address' => 'Jalan Mawar 1',
-            'city' => 'Yogyakarta',
-            'province' => 'DI Yogyakarta',
+            'city' => 'Kota Yogyakarta',
+            'province' => 'D.I. Yogyakarta',
             'payment_type' => 'dp',
             'payment_method' => 'bank_transfer',
+            'payment_proof' => UploadedFile::fake()->image('bukti_dp.jpg'),
         ])->assertRedirect('/akun');
         Order::query()->where('buyer', 'Pembeli DP')
             ->firstOrFail()->update(['status' => 'Sedang Diproduksi']);
@@ -209,5 +216,310 @@ class StorefrontAndRolesTest extends TestCase
             ->assertSee('Budi Santoso')
             ->assertSee('budi@example.com')
             ->assertSee('Jl. Malioboro No. 10, Yogyakarta');
+    }
+
+    public function test_online_store_displays_reseller_100_bal_minimum_requirement(): void
+    {
+        $product1 = Product::create([
+            'name' => 'Kue Tambang Reseller Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue tambang renyah.',
+            'price_per_bal' => 85000,
+            'cost_price' => 55000,
+            'sales_channel' => 'both',
+            'stock' => 500,
+        ]);
+        $product2 = Product::create([
+            'name' => 'Kue Keciput Reseller Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue keciput renyah.',
+            'price_per_bal' => 90000,
+            'cost_price' => 60000,
+            'sales_channel' => 'both',
+            'stock' => 500,
+        ]);
+
+        $buyer = User::factory()->create(['role' => 'buyer']);
+
+        // Case 1: When adding 30 bal of product1 (below min mix 50 bal)
+        $this->actingAs($buyer)
+            ->post(route('cart.store', $product1), ['quantity' => 30])
+            ->assertRedirect('/keranjang');
+
+        $response = $this->get(route('cart.index'));
+        $response->assertOk()
+            ->assertSee('Ketentuan Mix Produk: Minimal 50 Bal per Varian')
+            ->assertSee('Min. mix 50 bal');
+
+        // Case 2: Update product1 to 50 bal, but total is 50 bal (below total min 100 bal)
+        $this->post(route('cart.store', $product1), ['quantity' => 20])
+            ->assertRedirect('/keranjang');
+
+        $response2 = $this->get(route('cart.index'));
+        $response2->assertOk()
+            ->assertSee('Total Pembelian Belum Mencapai 100 Bal')
+            ->assertSee('50 / 100 bal');
+
+        // Case 3: Add 50 bal of product2 -> 50/50 mix reaches 100 bal total!
+        $this->post(route('cart.store', $product2), ['quantity' => 50])
+            ->assertRedirect('/keranjang');
+
+        $response3 = $this->get(route('cart.index'));
+        $response3->assertOk()
+            ->assertSee('Syarat Minimal Reseller Terpenuhi!')
+            ->assertSee('Lanjut ke Checkout (100 Bal)');
+    }
+
+    public function test_buyer_can_view_order_detail_and_tracking(): void
+    {
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $product = Product::create([
+            'name' => 'Kue Kering Demo',
+            'category' => 'Tradisional',
+            'description' => 'Enak dan renyah.',
+            'price_per_bal' => 80000,
+            'cost_price' => 50000,
+            'sales_channel' => 'both',
+            'stock' => 100,
+        ]);
+
+        $order = Order::create([
+            'code' => 'LB-TEST-12345',
+            'user_id' => $buyer->id,
+            'buyer' => $buyer->name,
+            'phone' => '08123456789',
+            'address' => 'Jl. Malioboro No. 10',
+            'city' => 'Yogyakarta',
+            'province' => 'D.I. Yogyakarta',
+            'total' => 8000000,
+            'dp' => 5200000,
+            'remaining' => 3800000,
+            'payment_type' => 'dp',
+            'status' => 'Sedang Diproduksi',
+            'shipping_cost' => 1000000,
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'quantity' => 100,
+            'unit_price' => 80000,
+            'subtotal' => 8000000,
+            'harga_modal_at_purchase' => 50000,
+            'harga_jual_at_purchase' => 80000,
+        ]);
+
+        // Buyer can access their own order
+        $this->actingAs($buyer)
+            ->get(route('buyer.orders.show', $order))
+            ->assertOk()
+            ->assertSee('LB-TEST-12345')
+            ->assertSee('Sedang Diproduksi')
+            ->assertSee('Skema Uang Muka (DP 65%)');
+
+        // Other buyer cannot access this order
+        $otherBuyer = User::factory()->create(['role' => 'buyer']);
+        $this->actingAs($otherBuyer)
+            ->get(route('buyer.orders.show', $order))
+            ->assertForbidden();
+    }
+
+    public function test_buyer_can_upload_settlement_proof_for_dp_order(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $order = Order::create([
+            'code' => 'LB-SETTLE-001',
+            'user_id' => $buyer->id,
+            'buyer' => $buyer->name,
+            'phone' => '08123456789',
+            'address' => 'Yogyakarta',
+            'city' => 'Yogyakarta',
+            'province' => 'D.I. Yogyakarta',
+            'total' => 8000000,
+            'dp' => 5200000,
+            'remaining' => 3800000,
+            'payment_type' => 'dp',
+            'status' => 'Siap Dikirim',
+            'shipping_cost' => 1000000,
+        ]);
+
+        $file = \Illuminate\Http\UploadedFile::fake()->image('bukti_pelunasan.jpg');
+
+        $this->actingAs($buyer)
+            ->post(route('buyer.orders.settlement', $order), [
+                'payment_proof' => $file,
+                'payment_method' => 'bank_transfer',
+            ])
+            ->assertRedirect();
+
+        $order->refresh();
+        $this->assertNotNull($order->settlement_proof);
+        $this->assertSame('Menunggu Verifikasi Admin', $order->settlement_status);
+    }
+
+    public function test_admin_can_view_order_delivery_slip_and_invoice(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $product = Product::create([
+            'name' => 'Kue Kering Admin Test',
+            'category' => 'Tradisional',
+            'description' => 'Deskripsi',
+            'price_per_bal' => 85000,
+            'cost_price' => 50000,
+            'sales_channel' => 'both',
+            'stock' => 100,
+        ]);
+
+        $order = Order::create([
+            'code' => 'LB-ADM-999',
+            'buyer' => 'Toko Barokah Reseller',
+            'phone' => '081299998888',
+            'address' => 'Jl. Solo Km 10',
+            'city' => 'Sleman',
+            'province' => 'D.I. Yogyakarta',
+            'total' => 8500000,
+            'dp' => 8500000,
+            'remaining' => 0,
+            'payment_type' => 'full',
+            'status' => 'Sedang Dikirim',
+            'courier_name' => 'Indah Logistik Kargo',
+            'tracking_number' => 'IND-999888777',
+            'shipping_cost' => 1000000,
+        ]);
+
+        $order->items()->create([
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'quantity' => 100,
+            'unit_price' => 85000,
+            'subtotal' => 8500000,
+            'harga_modal_at_purchase' => 50000,
+            'harga_jual_at_purchase' => 85000,
+        ]);
+
+        // Detail
+        $this->actingAs($admin)
+            ->get(route('admin.orders.show', $order))
+            ->assertOk()
+            ->assertSee('LB-ADM-999')
+            ->assertSee('Toko Barokah Reseller')
+            ->assertSee('Indah Logistik Kargo');
+
+        // Surat Jalan
+        $this->actingAs($admin)
+            ->get(route('admin.orders.delivery-order', $order))
+            ->assertOk()
+            ->assertSee('SURAT JALAN')
+            ->assertSee('Toko Barokah Reseller')
+            ->assertSee('Diantar Langsung oleh Toko');
+
+        // Faktur
+        $this->actingAs($admin)
+            ->get(route('admin.orders.invoice', $order))
+            ->assertOk()
+            ->assertSee('FAKTUR PENJUALAN')
+            ->assertSee('Rp 9.500.000');
+    }
+
+    public function test_admin_can_view_offline_cashier_receipt(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $product = Product::create([
+            'name' => 'Kue Tambang Kasir',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue tambang.',
+            'price_per_bal' => 85000,
+            'cost_price' => 50000,
+            'sales_channel' => 'offline',
+            'stock' => 100,
+        ]);
+
+        $trx = \App\Models\OfflineTransaction::create([
+            'buyer_name' => 'Bu Siti Toko Snack',
+            'date' => now()->toDateString(),
+            'total' => 170000,
+            'total_hpp' => 100000,
+            'total_laba' => 70000,
+            'payment_method' => 'cash',
+            'notes' => 'Tunai: Rp 200.000, Kembalian: Rp 30.000',
+        ]);
+
+        $trx->items()->create([
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'quantity' => 2,
+            'unit_price' => 85000,
+            'subtotal' => 170000,
+            'harga_modal_at_purchase' => 50000,
+            'harga_jual_at_purchase' => 85000,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.transactions.receipt', $trx))
+            ->assertOk()
+            ->assertSee('LINTANG BAKERY')
+            ->assertSee('Bu Siti Toko Snack')
+            ->assertSee('Kue Tambang Kasir')
+            ->assertSee('Rp 170.000')
+            ->assertSee('TUNAI');
+    }
+
+    public function test_checkout_requires_payment_proof(): void
+    {
+        $product = Product::create([
+            'name' => 'Kue Kering Bukti Bayar Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue kering renyah.',
+            'price_per_bal' => 85000,
+            'cost_price' => 50000,
+            'sales_channel' => 'online',
+            'stock' => 200,
+        ]);
+
+        $buyer = User::factory()->create(['role' => 'buyer']);
+
+        $this->actingAs($buyer)
+            ->post(route('cart.store', $product), ['quantity' => 2]);
+
+        // Attempt checkout without payment_proof
+        $response = $this->post(route('checkout.store'), [
+            'buyer' => 'Pembeli Tanpa Bukti',
+            'phone' => '08123456789',
+            'address' => 'Jalan Kaliurang KM 5',
+            'province' => 'D.I. Yogyakarta',
+            'city' => 'Kab. Sleman',
+            'payment_type' => 'full',
+            'payment_method' => 'bank_transfer',
+            // no payment_proof
+        ]);
+
+        $response->assertSessionHasErrors(['payment_proof']);
+    }
+
+    public function test_checkout_page_provides_cascading_regions(): void
+    {
+        $product = Product::create([
+            'name' => 'Kue Daerah Test',
+            'category' => 'Kue Kering Tradisional',
+            'description' => 'Kue daerah.',
+            'price_per_bal' => 85000,
+            'cost_price' => 50000,
+            'sales_channel' => 'online',
+            'stock' => 200,
+        ]);
+
+        $buyer = User::factory()->create(['role' => 'buyer']);
+
+        $this->actingAs($buyer)
+            ->post(route('cart.store', $product), ['quantity' => 2]);
+
+        $response = $this->get(route('checkout.index'));
+        $response->assertOk()
+            ->assertSee('D.I. Yogyakarta')
+            ->assertSee('Jawa Tengah')
+            ->assertSee('Bukti pembayaran / transfer')
+            ->assertSee('* (Wajib Diunggah)');
     }
 }
