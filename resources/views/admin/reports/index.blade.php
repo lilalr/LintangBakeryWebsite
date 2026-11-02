@@ -6,7 +6,7 @@
 @section('content')
 <div class="content-heading">
     <div><span class="eyebrow">RINGKASAN TOKO</span><h1>Laporan</h1></div>
-    <a class="button button-light" href="{{ route('admin.reports.export', request()->query()) }}">Unduh CSV</a>
+    <a class="button button-light" href="{{ route('admin.reports.index', request()->query()) }}">Unduh CSV</a>
 </div>
 
 {{-- Filter Tanggal & Pilihan Rentang --}}
