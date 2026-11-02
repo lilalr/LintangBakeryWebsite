@@ -10,6 +10,8 @@ use Illuminate\View\View;
 class CustomerController extends Controller
 {
     private const CONFIRMED_STATUSES = [
+        'Menunggu Konfirmasi',
+        'Pembayaran DP Masuk',
         'Pembayaran DP Disetujui',
         'Sedang Diproduksi',
         'Siap Dikirim',

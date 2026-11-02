@@ -28,6 +28,11 @@ class OfflineTransactionItem extends Model
         ];
     }
 
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(OfflineTransaction::class, 'offline_transaction_id');
+    }
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

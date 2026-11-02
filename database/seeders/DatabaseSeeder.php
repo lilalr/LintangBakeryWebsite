@@ -39,23 +39,61 @@ class DatabaseSeeder extends Seeder
         );
 
         $products = [
-            ['Nastar Nanas Premium', 'Kue Lebaran', 'Nastar lembut dengan selai nanas asli pilihan.', 85000, 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&h=500&fit=crop&auto=format'],
-            ['Kastengel Keju Edam', 'Kue Keju', 'Kastengel premium dengan keju Edam asli.', 95000, 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&h=500&fit=crop&auto=format'],
-            ['Putri Salju Cokelat', 'Kue Salju', 'Putri salju klasik dengan balutan gula halus dan cokelat.', 80000, 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=600&h=500&fit=crop&auto=format'],
-            ['Lidah Kucing Vanilla', 'Kue Kering Klasik', 'Kue tipis dan renyah dengan aroma vanilla.', 75000, 'https://images.unsplash.com/photo-1517427677506-ade074eb1432?w=600&h=500&fit=crop&auto=format'],
-            ['Semprit Meses Cokelat', 'Kue Kering Klasik', 'Semprit renyah bertabur meses cokelat.', 78000, 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=600&h=500&fit=crop&auto=format'],
+            [
+                'name' => 'Kue Tambang',
+                'category' => 'Kue Kering Tradisional',
+                'description' => 'Kue tambang (untir-untir) tradisional yang renyah, gurih, dan sedikit manis. Dibuat dari adonan pilihan yang dipilin rapi dan digoreng matang sempurna dengan minyak berkualitas. Sangat cocok untuk toples reseller dan kemasan repack.',
+                'price' => 85000,
+                'cost_price' => 55000,
+                'image' => '/images/products/kueTambang.jpg',
+            ],
+            [
+                'name' => 'Kue Keciput',
+                'category' => 'Kue Kering Tradisional',
+                'description' => 'Kue keciput renyah bertabur biji wijen pilihan dengan rasa gurih manis yang seimbang. Tekstur luar garing dan kopong renyah di dalam tahan lama tanpa bahan pengawet.',
+                'price' => 90000,
+                'cost_price' => 60000,
+                'image' => '/images/products/kueKeciput.jpg',
+            ],
+            [
+                'name' => 'Stik Ubi Ungu',
+                'category' => 'Camilan & Keripik',
+                'description' => 'Stik renyah berbahan olahan ubi ungu asli berkualitas dengan warna ungu alami tanpa pewarna sintetis. Rasa manis gurih yang unik dan renyah disukai semua kalangan.',
+                'price' => 80000,
+                'cost_price' => 50000,
+                'image' => '/images/products/stikUbi.jpg',
+            ],
+            [
+                'name' => 'Stik Asin',
+                'category' => 'Camilan & Keripik',
+                'description' => 'Stik gurih asin super renyah dengan aroma bumbu bawang dan rempah pilihan yang harum dan gurih nagih. Tekstur renyah garing sempurna untuk cemilan toples dan reseller.',
+                'price' => 75000,
+                'cost_price' => 45000,
+                'image' => '/images/products/stikAsin.jpg',
+            ],
+            [
+                'name' => 'Kerupuk Seblak Kering',
+                'category' => 'Camilan Pedas',
+                'description' => 'Kerupuk seblak kering pedas gurih beraroma kencur dan taburan daun jeruk yang otentik. Sensasi renyah bantat khas seblak kering dengan tingkat kepedasan nagih yang jadi best-seller reseller.',
+                'price' => 85000,
+                'cost_price' => 55000,
+                'image' => '/images/products/kerupukSeblak.jpg',
+            ],
         ];
 
-        foreach ($products as [$name, $category, $description, $price, $image]) {
+        foreach ($products as $i => $data) {
             Product::updateOrCreate(
-                ['name' => $name],
+                ['id' => $i + 1],
                 [
-                    'category' => $category,
-                    'description' => $description,
-                    'price_per_bal' => $price,
-                    'image' => $image,
+                    'name' => $data['name'],
+                    'category' => $data['category'],
+                    'description' => $data['description'],
+                    'price_per_bal' => $data['price'],
+                    'cost_price' => $data['cost_price'],
+                    'image' => $data['image'],
                     'sales_channel' => 'both',
-                    'stock' => 100,
+                    'stock' => 500,
+                    'min_stock' => 50,
                 ],
             );
         }

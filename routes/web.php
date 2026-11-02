@@ -37,6 +37,8 @@ Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
 Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/akun', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
     Route::put('/akun/profil', [BuyerDashboardController::class, 'update'])->name('buyer.profile.update');
+    Route::get('/akun/pesanan/{order}', [BuyerDashboardController::class, 'showOrder'])->name('buyer.orders.show');
+    Route::post('/akun/pesanan/{order}/pelunasan', [BuyerDashboardController::class, 'uploadSettlement'])->name('buyer.orders.settlement');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
@@ -47,11 +49,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/stok/keluar', [StockController::class, 'storeOutbound'])->name('stock.outbound');
     Route::patch('/stok/{product}', [StockController::class, 'update'])->name('stock.update');
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/pesanan/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
+    Route::get('/pesanan/{order}/surat-jalan', [AdminOrderController::class, 'deliveryOrder'])->name('orders.delivery-order');
+    Route::get('/pesanan/{order}/faktur', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('/pelanggan', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/pelanggan/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/transaksi-offline', [OfflineTransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transaksi-offline', [OfflineTransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transaksi-offline/{transaction}/struk', [OfflineTransactionController::class, 'receipt'])->name('transactions.receipt');
     Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');

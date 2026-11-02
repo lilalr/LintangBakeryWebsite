@@ -83,95 +83,80 @@
 
     <!-- Orders Section -->
     <section class="panel" style="background: white; border: 1px solid #ebd9c8; border-radius: 14px; padding: 24px; box-shadow: 0 4px 14px rgba(92,58,33,0.03);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #f2e9df;">
             <div>
                 <h2 style="font-size: 1.15rem; font-weight: 750; margin: 0; color: #2b1d16;">Riwayat Pesanan Pelanggan</h2>
-                <p style="margin: 3px 0 0; font-size: 0.84rem; color: #786b62;">Seluruh transaksi online yang pernah dibuat oleh {{ $customer->name }}.</p>
+                <p style="margin: 3px 0 0; font-size: 0.84rem; color: #786b62;">Daftar transaksi online {{ $customer->name }}.</p>
             </div>
             <span style="font-size: 0.82rem; font-weight: 700; background: #fdf5eb; color: var(--brown, #5c3a21); padding: 5px 12px; border-radius: 20px; border: 1px solid #ebd9c8;">
                 {{ $customer->orders->count() }} Pesanan
             </span>
         </div>
 
-        <div class="table-scroll">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #faf6f0; border-bottom: 1px solid #ebd9c8;">
-                        <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: #7c6d62; width: 28%;">Kode & Tanggal</th>
-                        <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: #7c6d62; width: 34%;">Item Pesanan</th>
-                        <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: #7c6d62; width: 20%;">Total Pembayaran</th>
-                        <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: #7c6d62; width: 18%;">Status Pesanan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse ($customer->orders as $order)
-                    <tr style="border-bottom: 1px solid #f5ede4;">
-                        <td style="padding: 14px 16px;">
-                            <strong style="display: block; font-size: 0.92rem; color: #2b1d16;">{{ $order->code }}</strong>
-                            <small style="color: #786b62;">{{ $order->created_at->translatedFormat('d M Y, H:i') }}</small>
-                            @if ($order->payment_proof)
-                                <div style="margin-top: 4px;">
-                                    <a class="text-link" href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($order->payment_proof) }}" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; display: inline-flex; align-items: center; gap: 4px;">
-                                        <span>Lihat Bukti Bayar</span>
-                                        <svg style="width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                                    </a>
-                                </div>
-                            @endif
-                        </td>
-                        <td style="padding: 14px 16px;">
-                            <ul style="margin: 0; padding-left: 16px; font-size: 0.84rem; color: #443730;">
-                                @foreach ($order->items as $item)
-                                    <li>{{ $item->name }} &times; {{ $item->quantity }} bal</li>
-                                @endforeach
-                            </ul>
-                        </td>
-                        <td style="padding: 14px 16px;">
-                            <strong style="display: block; font-size: 0.92rem; color: #2b1d16;">
-                                Rp {{ number_format($order->total + $order->shipping_cost, 0, ',', '.') }}
-                            </strong>
-                            <small style="color: #786b62; font-size: 0.78rem;">
-                                {{ $order->payment_type === 'dp' ? 'DP: Rp '.number_format($order->dp, 0, ',', '.') : 'Lunas' }} · {{ strtoupper($order->payment_method) }}
-                            </small>
-                        </td>
-                        <td style="padding: 14px 16px;">
-                            <form method="post" action="{{ route('admin.orders.update', $order) }}" class="status-form" style="display: flex; gap: 6px; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            @forelse ($customer->orders as $order)
+                <article style="background: #faf6f0; border: 1px solid #ebd9c8; border-radius: 12px; padding: 16px 18px; transition: all 0.2s ease;">
+                    {{-- Baris Atas: Kode, Tanggal, dan Status --}}
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #e6d5c5;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <a href="{{ route('admin.orders.show', $order) }}" style="font-size: 0.98rem; font-weight: 800; color: var(--brown-dark, #2b1d16); text-decoration: none;" title="Buka Detail Pesanan">
+                                    {{ $order->code }}
+                                </a>
+                                <span style="font-size: 0.76rem; color: #8a7c73;">{{ $order->created_at->translatedFormat('d M Y, H:i') }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Status & Quick Update --}}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <form method="post" action="{{ route('admin.orders.update', $order) }}" style="margin: 0;">
                                 @csrf
                                 @method('PATCH')
-                                <select name="status" style="font-size: 0.8rem; padding: 5px 8px; border-radius: 6px; border: 1px solid #d9cebe; background: #fff; max-width: 160px;">
-                                    @php
-                                        $statuses = [
-                                            'Menunggu Pembayaran DP',
-                                            'Pembayaran DP Masuk',
-                                            'Pembayaran DP Disetujui',
-                                            'Sedang Diproduksi',
-                                            'Siap Dikirim',
-                                            'Sedang Dikirim',
-                                            'Sudah Sampai',
-                                            'Selesai/Lunas',
-                                            'Dibatalkan',
-                                        ];
-                                    @endphp
-                                    @foreach ($statuses as $st)
+                                <select name="status" onchange="this.form.submit()" title="Ganti Status Pesanan" style="font-size: 0.78rem; font-weight: 700; padding: 5px 9px; border-radius: 6px; border: 1px solid #d9cebe; background: #ffffff; color: #2b1d16; cursor: pointer;">
+                                    @foreach (\App\Http\Controllers\Admin\OrderController::STATUSES as $st)
                                         <option value="{{ $st }}" @selected($order->status === $st)>{{ $st }}</option>
                                     @endforeach
                                 </select>
-                                <button type="submit" class="button button-small" style="padding: 5px 9px; font-size: 0.78rem;">Ubah</button>
                             </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" style="text-align: center; padding: 40px 20px;">
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #faf6f0; color: #a4968d; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                                <svg style="width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8;" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                            </div>
-                            <strong style="display: block; font-size: 0.92rem; color: #2b1d16; margin-bottom: 2px;">Belum Ada Riwayat Pesanan</strong>
-                            <p style="margin: 0; font-size: 0.82rem; color: #786b62;">Pelanggan ini belum pernah melakukan checkout pesanan online.</p>
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+                            <a href="{{ route('admin.orders.show', $order) }}" class="button button-small button-light" style="font-size: 0.78rem; padding: 5px 10px; text-decoration: none; white-space: nowrap;">
+                                Detail &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Baris Tengah: Rincian Produk --}}
+                    <div style="margin-bottom: 10px; font-size: 0.86rem; color: #3b2f27; line-height: 1.5;">
+                        <span style="font-weight: 600;">Item:</span>
+                        {{ $order->items->map(fn($it) => $it->name . ' (' . $it->quantity . ' bal)')->join(', ') }}
+                        <span style="color: #8a7c73; font-size: 0.8rem;">(Total: {{ $order->items->sum('quantity') }} bal)</span>
+                    </div>
+
+                    {{-- Baris Bawah: Total Pembayaran & Bukti Bayar --}}
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: 700; color: #2b1d16; font-size: 0.95rem;">
+                                Rp {{ number_format($order->total + $order->shipping_cost, 0, ',', '.') }}
+                            </span>
+                            <span style="color: #786b62; font-size: 0.8rem; background: #ffffff; padding: 2px 8px; border-radius: 4px; border: 1px solid #e8dbcd;">
+                                {{ $order->payment_type === 'dp' ? 'DP: Rp '.number_format($order->dp, 0, ',', '.').' (Sisa: Rp '.number_format($order->remaining, 0, ',', '.').')' : 'Lunas (100%)' }} · {{ strtoupper($order->payment_method ?? 'Transfer') }}
+                            </span>
+                        </div>
+
+                        @if ($order->payment_proof)
+                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($order->payment_proof) }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 700; color: #b45309; text-decoration: none;">
+                                <svg style="width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                                <span>Lihat Bukti Bayar</span>
+                            </a>
+                        @endif
+                    </div>
+                </article>
+            @empty
+                <div style="text-align: center; padding: 36px 20px; background: #faf6f0; border-radius: 10px; border: 1px dashed #ebd9c8;">
+                    <svg style="width: 28px; height: 28px; stroke: #a4968d; fill: none; stroke-width: 1.8; margin: 0 auto 8px; display: block;" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <strong style="display: block; font-size: 0.92rem; color: #2b1d16; margin-bottom: 2px;">Belum Ada Riwayat Pesanan</strong>
+                    <p style="margin: 0; font-size: 0.82rem; color: #786b62;">Pelanggan ini belum pernah melakukan checkout pesanan online.</p>
+                </div>
+            @endforelse
         </div>
     </section>
 </div>
