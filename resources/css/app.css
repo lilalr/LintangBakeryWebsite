@@ -238,8 +238,26 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
     .status-form select { min-width: 130px; }
 }
 @media print {
-    .admin-sidebar, .admin-topbar, .content-heading .button, .sidebar-bottom, .pagination-wrap { display: none !important; }
+    .admin-sidebar, .admin-topbar, .content-heading .button, .sidebar-bottom, .pagination-wrap, .stock-tools, .filter-bar { display: none !important; }
     .admin-main { margin: 0; }
     .admin-content { padding: 0; }
     .panel, .stat-card { break-inside: avoid; }
 }
+
+/* Manajemen stok */
+.status-ok { color: #276745; background: #f1faf4; }
+.status-low { color: #805e20; background: #fff4d8; }
+.status-out { color: #913e36; background: #fdeceb; }
+.badge-in { color: #276745; background: #f1faf4; }
+.badge-out { color: #913e36; background: #fdeceb; }
+.stock-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 20px; }
+.stock-tools .spacer { flex: 1; }
+.filter-bar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.filter-bar label { display: flex; flex-direction: column; gap: 6px; color: #514238; font-size: 12px; font-weight: 650; }
+.num-in { color: #276745; font-weight: 700; }
+.num-out { color: #913e36; font-weight: 700; }
+.void-row { opacity: .6; }
+.void-row .amount { text-decoration: line-through; }
+.void-form { display: flex; gap: 6px; align-items: center; }
+.void-form input { width: 130px; min-height: 30px; }
+.form-hint { color: var(--muted); font-size: 11px; font-weight: 400; }
