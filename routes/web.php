@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OfflineTransactionController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -15,7 +14,7 @@ use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StorefrontController::class, 'index'])->name('store.home');
-Route::get('/produk', [StorefrontController::class, 'catalog'])->name('store.products');
+Route::get('/produk', [StorefrontController::class, 'index'])->name('store.products');
 Route::get('/produk/{product}', [StorefrontController::class, 'show'])->name('store.product');
 
 Route::get('/masuk', [AuthController::class, 'showLogin'])->name('login');
@@ -29,36 +28,30 @@ Route::post('/keranjang/{product}', [CartController::class, 'store'])->name('car
 Route::patch('/keranjang/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/keranjang/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
+Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-});
-
-Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/akun', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
     Route::put('/akun/profil', [BuyerDashboardController::class, 'update'])->name('buyer.profile.update');
-    Route::get('/akun/pesanan/{order}', [BuyerDashboardController::class, 'showOrder'])->name('buyer.orders.show');
-    Route::post('/akun/pesanan/{order}/pelunasan', [BuyerDashboardController::class, 'uploadSettlement'])->name('buyer.orders.settlement');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('produk', AdminProductController::class)->except(['show'])->parameters(['produk' => 'product']);
     Route::get('/stok', [StockController::class, 'index'])->name('stock.index');
-    Route::post('/stok/masuk', [StockController::class, 'storeInbound'])->name('stock.inbound');
-    Route::post('/stok/keluar', [StockController::class, 'storeOutbound'])->name('stock.outbound');
-    Route::patch('/stok/{product}', [StockController::class, 'update'])->name('stock.update');
+    Route::get('/stok/kartu', [StockController::class, 'card'])->name('stock.card');
+    Route::get('/stok/kartu/ekspor', [StockController::class, 'exportCard'])->name('stock.card.export');
+    Route::post('/stok/batch/{batch}/kedaluwarsa', [StockController::class, 'expireBatch'])->name('stock.batch.expire');
+    Route::get('/stok/opname', [StockController::class, 'opnameForm'])->name('stock.opname.form');
+    Route::post('/stok/opname', [StockController::class, 'opname'])->name('stock.opname');
+    Route::get('/stok/masuk', [StockController::class, 'receiveForm'])->name('stock.receive.form');
+    Route::post('/stok/masuk', [StockController::class, 'receive'])->name('stock.receive');
+    Route::get('/stok/keluar', [StockController::class, 'issueForm'])->name('stock.issue.form');
+    Route::post('/stok/keluar', [StockController::class, 'issue'])->name('stock.issue');
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
-    Route::get('/pesanan/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/pesanan/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
-    Route::get('/pesanan/{order}/surat-jalan', [AdminOrderController::class, 'deliveryOrder'])->name('orders.delivery-order');
-    Route::get('/pesanan/{order}/faktur', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
-    Route::get('/pelanggan', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/pelanggan/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/transaksi-offline', [OfflineTransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transaksi-offline', [OfflineTransactionController::class, 'store'])->name('transactions.store');
-    Route::get('/transaksi-offline/{transaction}/struk', [OfflineTransactionController::class, 'receipt'])->name('transactions.receipt');
-    Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');
-    Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::post('/transaksi-offline/{transaction}/void', [OfflineTransactionController::class, 'void'])->name('transactions.void');
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
 });
