@@ -120,6 +120,13 @@ class OfflineTransactionController extends Controller
             ]);
     }
 
+    public function receipt(OfflineTransaction $transaction): View
+    {
+        $transaction->load('items.product');
+
+        return view('admin.transactions.receipt', compact('transaction'));
+    }
+
     public function destroy(OfflineTransaction $transaction): RedirectResponse
     {
         DB::transaction(function () use ($transaction): void {

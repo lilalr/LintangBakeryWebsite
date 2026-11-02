@@ -23,7 +23,15 @@ class Order extends Model
         'payment_method',
         'status',
         'payment_proof',
+        'final_payment_proof',
+        'final_payment_method',
+        'settlement_proof',
+        'settlement_status',
         'shipping_cost',
+        'courier_name',
+        'tracking_number',
+        'shipping_notes',
+        'remaining_paid_at',
         'stock_deducted',
     ];
 

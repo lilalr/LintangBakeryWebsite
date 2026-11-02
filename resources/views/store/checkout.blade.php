@@ -30,15 +30,22 @@
         <label>No. telepon
             <input name="phone" value="{{ old('phone', auth()->user()->phone) }}" required>
         </label>
-        <label>Alamat lengkap
-            <textarea name="address" rows="3" required>{{ old('address', auth()->user()->address) }}</textarea>
+        <label>Alamat lengkap (Nama jalan, RT/RW, No. Toko/Rumah, Patokan)
+            <textarea name="address" rows="3" placeholder="Contoh: Jl. Slamet Riyadi No. 120, RT 02 / RW 04, Toko Roti Berkah (depan apotek)" required>{{ old('address', auth()->user()->address) }}</textarea>
         </label>
         <div class="form-row">
-            <label>Kota / kabupaten
-                <input name="city" value="{{ old('city') }}" required>
-            </label>
             <label>Provinsi
-                <input name="province" value="{{ old('province') }}" required>
+                <select name="province" id="provinceSelect" required onchange="onProvinceChanged()">
+                    <option value="">-- Pilih Provinsi Tujuan --</option>
+                    @foreach (array_keys($regions) as $prov)
+                        <option value="{{ $prov }}" @selected(old('province', 'D.I. Yogyakarta') === $prov)>{{ $prov }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>Kota / Kabupaten
+                <select name="city" id="citySelect" required>
+                    <option value="">-- Pilih Kota / Kabupaten --</option>
+                </select>
             </label>
         </div>
 
@@ -187,13 +194,17 @@
 
         {{-- Bukti Pembayaran --}}
         <div class="upload-proof-box">
-            <label for="payment_proof">Bukti pembayaran (opsional)
-                <input type="file" id="payment_proof" name="payment_proof" accept="image/*" onchange="handleProofPreview(event)">
+            <label for="payment_proof" style="display: block; font-weight: 700; color: var(--brown-dark); margin-bottom: 6px;">
+                Bukti pembayaran / transfer <span style="color: #c53030; font-weight: 800;">* (Wajib Diunggah)</span>
+                <span style="display: block; font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 2px;">
+                    Silakan upload screenshot bukti transfer bank atau resi scan QRIS sebelum pesanan dibuat.
+                </span>
+                <input type="file" id="payment_proof" name="payment_proof" accept="image/*" required onchange="handleProofPreview(event)" style="margin-top: 8px;">
             </label>
             <div id="fileUploadPreview" class="file-upload-preview">
                 <svg style="width:18px;height:18px;stroke:var(--brown);fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                 <span id="fileUploadName" style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
-                <span style="color:#28a745; font-size:11px; font-weight:700;">File dipilih</span>
+                <span style="color:#28a745; font-size:11px; font-weight:700;">File siap diunggah ✓</span>
             </div>
         </div>
 
@@ -382,8 +393,48 @@
         }
     }
 
+    // Dynamic Cascading Region (Provinsi -> Kota/Kabupaten)
+    const REGIONS_DATA = @json($regions);
+    const OLD_PROVINCE = @json(old('province', 'D.I. Yogyakarta'));
+    const OLD_CITY = @json(old('city', 'Kota Yogyakarta'));
+
+    function onProvinceChanged(preserveOldCity = false) {
+        const provSelect = document.getElementById('provinceSelect');
+        const citySelect = document.getElementById('citySelect');
+        const selectedProv = provSelect.value;
+
+        citySelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+
+        if (selectedProv && REGIONS_DATA[selectedProv]) {
+            citySelect.disabled = false;
+            REGIONS_DATA[selectedProv].forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.textContent = city;
+                citySelect.appendChild(opt);
+            });
+
+            if (preserveOldCity && OLD_CITY && REGIONS_DATA[selectedProv].includes(OLD_CITY)) {
+                citySelect.value = OLD_CITY;
+            }
+        } else {
+            citySelect.disabled = true;
+        }
+    }
+
+    function initRegionDropdown() {
+        const provSelect = document.getElementById('provinceSelect');
+        if (provSelect) {
+            if (OLD_PROVINCE && REGIONS_DATA[OLD_PROVINCE]) {
+                provSelect.value = OLD_PROVINCE;
+            }
+            onProvinceChanged(true);
+        }
+    }
+
     // Initialize UI on page load
     document.addEventListener('DOMContentLoaded', function() {
+        initRegionDropdown();
         refreshPaymentUI();
     });
 </script>

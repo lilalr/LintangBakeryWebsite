@@ -1302,6 +1302,7 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
     .admin-sidebar { width: 210px; }
     .admin-main { margin-left: 210px; }
     .admin-content { padding: 18px; }
+}
 /* ─── Reseller Minimum Order & Badges ─── */
 .reseller-pill {
     display: inline-flex;
@@ -1374,6 +1375,280 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
     border-radius: 4px;
     margin-top: 4px;
 }
+
+/* ==========================================================================
+   Order Detail & Tracking (Buyer Page)
+   ========================================================================== */
+.order-detail-page {
+    padding: 20px 0 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.order-page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+}
+
+.order-page-head h1 {
+    margin: 6px 0 4px;
+    color: var(--brown-dark);
+    font: 600 30px Georgia, serif;
+}
+
+.order-time-meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.order-head-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Stepper Card */
+.tracking-stepper-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 4px 16px rgba(77, 46, 32, 0.04);
+}
+
+.stepper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stepper-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brown-dark);
+}
+
+.stepper-track {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    position: relative;
+}
+
+.stepper-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    position: relative;
+}
+
+.stepper-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background: #e8ded4;
+    z-index: 1;
+}
+
+.stepper-step.done:not(:last-child)::after {
+    background: #28a745;
+}
+
+.stepper-step.current:not(:last-child)::after {
+    background: #e8ded4;
+}
+
+.step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f4ece4;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px #d8c7b8;
+}
+
+.stepper-step.done .step-dot {
+    background: #28a745;
+    color: white;
+    box-shadow: 0 0 0 1px #28a745;
+}
+
+.stepper-step.current .step-dot {
+    background: var(--brown);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(117, 70, 44, 0.25);
+}
+
+.step-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.3;
+}
+
+.stepper-step.current .step-text {
+    color: var(--brown-dark);
+    font-weight: 750;
+}
+
+.shipping-info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: #fdfaf7;
+    border: 1px solid #eadcd0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #4b3d33;
+}
+
+.shipping-info-banner svg {
+    color: var(--brown);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Settlement Card */
+.settlement-card {
+    background: #fffdf9;
+    border: 1.5px solid #ebd9c7;
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 4px 16px rgba(77, 46, 32, 0.04);
+}
+
+.settlement-card.settlement-done {
+    background: #f7fcf8;
+    border-color: #c9e4d4;
+}
+
+.settlement-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #eadcd0;
+}
+
+.settlement-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+}
+
+.settlement-stat {
+    padding: 12px 14px;
+    background: white;
+    border: 1px solid #ebdcd0;
+    border-radius: 8px;
+}
+
+.settlement-stat span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.settlement-stat strong {
+    font-size: 16px;
+    color: var(--brown-dark);
+}
+
+.settlement-upload-box {
+    margin-top: 16px;
+    padding: 18px;
+    background: white;
+    border: 1px solid #ebdcd0;
+    border-radius: 10px;
+}
+
+.bank-accounts-compact {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.bank-pill {
+    padding: 6px 12px;
+    background: #faf5ee;
+    border: 1px solid #ebd8c8;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: #4b3d33;
+}
+
+.settlement-form .form-row-settle {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.settlement-form label span {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 650;
+    color: var(--brown-dark);
+    margin-bottom: 4px;
+}
+
+/* Order Grid Details */
+.order-grid-details {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.order-summary-box {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #55443a;
+}
+
+.summary-line.total-line {
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    margin-top: 4px;
 }
 @media (max-width: 650px) {
     .container { width: min(100% - 28px, 1160px); }

@@ -183,13 +183,19 @@
                             <strong style="font-size: 14px;">Rp {{ number_format($transaction->total, 0, ',', '.') }}</strong>
                         </td>
                         <td>
-                            <form method="post" action="{{ route('admin.transactions.destroy', $transaction) }}" onsubmit="return confirm('Batalkan (void) transaksi ini? Stok yang terjual akan otomatis dikembalikan ke inventori.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="button button-small button-danger" style="padding: 4px 8px; font-size: 11px;">
-                                    Void (Batal)
-                                </button>
-                            </form>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <a href="{{ route('admin.transactions.receipt', $transaction) }}" target="_blank" class="button button-small button-light" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" title="Cetak Struk Kasir">
+                                    <svg style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                                    Struk
+                                </a>
+                                <form method="post" action="{{ route('admin.transactions.destroy', $transaction) }}" onsubmit="return confirm('Batalkan (void) transaksi ini? Stok yang terjual akan otomatis dikembalikan ke inventori.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="button button-small button-danger" style="padding: 4px 8px; font-size: 11px;">
+                                        Void
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -333,10 +339,17 @@
                     <strong style="color: var(--brown-dark); font-size: 17px;">Rp {{ number_format($stx['total'], 0, ',', '.') }}</strong>
                 </div>
             </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                <a href="{{ route('admin.transactions.receipt', $stx['id']) }}?print=1" target="_blank" class="button button-full" style="background:#8b4513; color:#fff; font-size: 14px; font-weight: 700; padding: 12px; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Cetak Struk Kasir
+                </a>
+            </div>
         @endif
 
-        <button type="button" id="closeSuccessModalBtn" class="button button-full" onclick="closeModals()" style="font-size: 14px; font-weight: 700; padding: 12px; border-radius: 10px;">
-            {{ session('trx_success') ? 'OK, Transaksi Baru' : 'Tutup' }}
+        <button type="button" id="closeSuccessModalBtn" class="button button-full button-light" onclick="closeModals()" style="font-size: 14px; font-weight: 700; padding: 12px; border-radius: 10px;">
+            {{ session('trx_success') ? 'Tutup & Transaksi Baru' : 'Tutup' }}
         </button>
     </div>
 </div>
