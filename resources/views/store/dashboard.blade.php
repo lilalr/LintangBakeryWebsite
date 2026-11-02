@@ -18,10 +18,31 @@
     <section>
         <div class="section-head compact"><div><span class="eyebrow">RIWAYAT</span><h2>Pesanan saya</h2></div></div>
         @forelse ($orders as $order)
-            <article class="order-card">
-                <div class="order-card-head"><div><strong>{{ $order->code }}</strong><span>{{ $order->created_at->format('d/m/Y') }}</span></div><span class="status-pill">{{ $order->status }}</span></div>
-                <p>{{ $order->items->pluck('name')->join(', ') }}</p>
-                <div class="order-card-foot"><span>Total Rp {{ number_format($order->total + $order->shipping_cost, 0, ',', '.') }}</span><span>DP: Rp {{ number_format($order->dp, 0, ',', '.') }}</span></div>
+            <article class="order-card" style="transition: transform .15s ease, box-shadow .15s ease;">
+                <div class="order-card-head">
+                    <div>
+                        <strong>{{ $order->code }}</strong>
+                        <span>{{ $order->created_at->format('d/m/Y H:i') }}</span>
+                    </div>
+                    <span class="status-pill">{{ $order->status }}</span>
+                </div>
+                <p style="margin: 8px 0; color: #4e3e34; font-size: 13px;">{{ $order->items->pluck('name')->join(', ') }}</p>
+                <div class="order-card-foot" style="flex-wrap: wrap; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--brown-dark); font-size: 13.5px;">Total: Rp {{ number_format($order->total + $order->shipping_cost, 0, ',', '.') }}</strong>
+                        @if ($order->payment_type === 'dp')
+                            <small style="display:block; color:#92400e; font-size:11px; font-weight:600;">
+                                DP: Rp {{ number_format($order->dp, 0, ',', '.') }} · Sisa: Rp {{ number_format($order->remaining, 0, ',', '.') }}
+                                @if ($order->settlement_status === 'Menunggu Verifikasi Admin')
+                                    <span style="color:#2563eb;">(Pelunasan Diunggah)</span>
+                                @endif
+                            </small>
+                        @else
+                            <small style="display:block; color:#15803d; font-size:11px; font-weight:600;">Pembayaran Lunas</small>
+                        @endif
+                    </div>
+                    <a href="{{ route('buyer.orders.show', $order) }}" class="button button-small" style="font-size: 11.5px; padding: 6px 12px; text-decoration: none;">Lihat Detail & Tracking →</a>
+                </div>
             </article>
         @empty
             <div class="empty-state small-empty"><p>Belum ada pesanan.</p><a class="text-link" href="{{ route('store.products') }}">Mulai belanja →</a></div>

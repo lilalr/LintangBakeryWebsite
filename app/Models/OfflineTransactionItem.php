@@ -13,6 +13,8 @@ class OfflineTransactionItem extends Model
         'quantity',
         'unit_price',
         'subtotal',
+        'harga_modal_at_purchase',
+        'harga_jual_at_purchase',
     ];
 
     protected function casts(): array
@@ -21,7 +23,14 @@ class OfflineTransactionItem extends Model
             'quantity' => 'integer',
             'unit_price' => 'integer',
             'subtotal' => 'integer',
+            'harga_modal_at_purchase' => 'decimal:2',
+            'harga_jual_at_purchase' => 'decimal:2',
         ];
+    }
+
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(OfflineTransaction::class, 'offline_transaction_id');
     }
 
     public function product(): BelongsTo

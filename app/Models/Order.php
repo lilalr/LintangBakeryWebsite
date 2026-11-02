@@ -20,9 +20,19 @@ class Order extends Model
         'dp',
         'remaining',
         'payment_type',
+        'payment_method',
         'status',
         'payment_proof',
+        'final_payment_proof',
+        'final_payment_method',
+        'settlement_proof',
+        'settlement_status',
         'shipping_cost',
+        'courier_name',
+        'tracking_number',
+        'shipping_notes',
+        'remaining_paid_at',
+        'stock_deducted',
     ];
 
     protected function casts(): array
@@ -32,6 +42,7 @@ class Order extends Model
             'dp' => 'integer',
             'remaining' => 'integer',
             'shipping_cost' => 'integer',
+            'stock_deducted' => 'boolean',
         ];
     }
 
