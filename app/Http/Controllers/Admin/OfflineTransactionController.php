@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\OfflineTransaction;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Midtrans\Config;
+use Midtrans\CoreApi;
 
 class OfflineTransactionController extends Controller
 {
@@ -18,6 +21,64 @@ class OfflineTransactionController extends Controller
         $products = Product::whereIn('sales_channel', ['offline', 'both'])->orderBy('name')->get();
 
         return view('admin.transactions.index', compact('transactions', 'products'));
+    }
+
+    public function generateQris(Request $request): JsonResponse
+    {
+        $request->validate([
+            'totalHarga' => ['required', 'numeric', 'min:1'],
+        ]);
+
+        Config::$serverKey = config('services.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
+        Config::$isProduction = config('services.midtrans.is_production', env('MIDTRANS_IS_PRODUCTION', false));
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $orderId = 'LB-OFFLINE-' . time() . '-' . rand(100, 999);
+
+        $params = [
+            'payment_type' => 'qris',
+            'qris' => [
+                'acquirer' => 'gopay',
+            ],
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (int) round($request->totalHarga),
+            ],
+        ];
+
+        try {
+            $chargeResponse = CoreApi::charge($params);
+
+            $qrUrl = null;
+            if (isset($chargeResponse->actions)) {
+                foreach ($chargeResponse->actions as $action) {
+                    if ($action->name === 'generate-qr-code') {
+                        $qrUrl = $action->url;
+                        break;
+                    }
+                }
+            }
+
+            if ($qrUrl) {
+                return response()->json([
+                    'status' => 'success',
+                    'order_id' => $orderId,
+                    'qr_url' => $qrUrl,
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mendapatkan URL QR Code dari Midtrans.',
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function store(Request $request): RedirectResponse

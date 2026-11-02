@@ -55,4 +55,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
+    Route::post('/admin/transaksi-offline/generate-qris', [App\Http\Controllers\Admin\OfflineTransactionController::class, 'generateQris'])->name('admin.transaksi-offline.generate-qris');
 });
