@@ -48,9 +48,23 @@
                                     <input type="hidden" name="quantity" value="{{ $item['quantity'] > 10 ? $item['quantity'] - 10 : max(1, $item['quantity'] - 1) }}">
                                     <button type="submit" aria-label="Kurangi jumlah" @disabled($item['quantity'] <= 1)>−</button>
                                 </form>
-                                <span aria-live="polite" style="font-weight: 700; color: {{ $isItemUnder50 ? '#b45309' : 'inherit' }};">
-                                    {{ $item['quantity'] }}
-                                </span>
+
+                                {{-- Input manual: klik angka → bisa ketik langsung --}}
+                                <form method="post" action="{{ route('cart.update', $item['product']) }}" class="qty-manual-form" style="display:inline; margin:0;">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        value="{{ $item['quantity'] }}"
+                                        min="1"
+                                        max="10000"
+                                        class="qty-manual-input {{ $isItemUnder50 ? 'qty-warn' : '' }}"
+                                        aria-label="Jumlah {{ $item['product']->name }}"
+                                        data-price="{{ $item['product']->price_per_bal }}"
+                                    >
+                                </form>
+
                                 <form method="post" action="{{ route('cart.update', $item['product']) }}" style="display:inline; margin:0;">
                                     @csrf
                                     @method('PATCH')
@@ -93,8 +107,8 @@
         @endphp
         <div class="cart-drawer-footer">
             <div class="cart-drawer-subtotal">
-                <span>Total ({{ $cartDrawerCount }} bal):</span>
-                <strong>Rp {{ number_format($cartDrawerTotal, 0, ',', '.') }}</strong>
+                <span id="drawer-total-label">Total ({{ $cartDrawerCount }} bal):</span>
+                <strong id="drawer-total-amount">Rp {{ number_format($cartDrawerTotal, 0, ',', '.') }}</strong>
             </div>
 
             @if ($underMinCount > 0)
