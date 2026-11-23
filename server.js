@@ -16,10 +16,9 @@ app.use(cors({ origin: '*' }));
 // Serve file statis langsung dari folder utama
 app.use(express.static(__dirname));
 
-// Masukkan Server Key & Client Key dari Dashboard Midtrans Sandbox Kamu
-// Dashboard Midtrans -> Settings -> Access Keys
-const SERVER_KEY = 'Mid-server-doEf5XIK4fxxxxxxxxxx';
-const CLIENT_KEY = 'Mid-client-LVKdxxxxxxxxxx';
+// Access Keys Dashboard Midtrans Sandbox
+const SERVER_KEY = 'Mid-server-doEf5XIK4fHiyq1FxHd8cKXe';
+const CLIENT_KEY = 'Mid-client-LVKdYZ6KsBOhBLah';
 
 let coreApi = new midtransClient.CoreApi({
     isProduction: false,
@@ -27,17 +26,21 @@ let coreApi = new midtransClient.CoreApi({
     clientKey: CLIENT_KEY
 });
 
-// Endpoint POST Generate QRIS
-app.post('/api/generate-qris', async (req, res) => {
+// Endpoint POST Generate QRIS (Mendukung panggilan dari Kasir maupun Checkout Web)
+app.post(['/api/generate-qris', '/api/generate_qris'], async (req, res) => {
     try {
-        const { totalHarga } = req.body;
+        // Menerima 'gross_amount' dari checkout.blade.php atau 'totalHarga' dari Kasir
+        const amount = req.body.gross_amount || req.body.totalHarga || req.body.amount;
 
-        if (!totalHarga || isNaN(totalHarga) || totalHarga <= 0) {
-            return res.status(400).json({ status: 'error', message: 'Nominal harga tidak valid' });
+        if (!amount || isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'Nominal harga tidak valid' 
+            });
         }
 
-        const orderId = 'KMTI-' + Date.now();
-        console.log(`[REQUEST] Order ID: ${orderId} | Total: Rp ${totalHarga}`);
+        const orderId = req.body.order_id || ('LB-' + Date.now());
+        console.log(`[REQUEST] Order ID: ${orderId} | Total: Rp ${amount}`);
 
         let parameter = {
             "payment_type": "qris",
@@ -46,7 +49,7 @@ app.post('/api/generate-qris', async (req, res) => {
             },
             "transaction_details": {
                 "order_id": orderId,
-                "gross_amount": Math.round(Number(totalHarga))
+                "gross_amount": Math.round(Number(amount))
             }
         };
 
@@ -62,7 +65,10 @@ app.post('/api/generate-qris', async (req, res) => {
                 qr_url: qrAction.url
             });
         } else {
-            res.status(400).json({ status: 'error', message: 'QR Code action tidak ditemukan' });
+            res.status(400).json({ 
+                status: 'error', 
+                message: 'QR Code action tidak ditemukan dari respon Midtrans' 
+            });
         }
 
     } catch (error) {
@@ -74,11 +80,17 @@ app.post('/api/generate-qris', async (req, res) => {
     }
 });
 
+// Endpoint GET Cek Status Transaksi Midtrans
 app.get('/api/check-status/:orderId', async (req, res) => {
     try {
-        const statusResponse = await coreApi.transaction.notification(req.params.orderId);
-        res.json({ transaction_status: statusResponse.transaction_status });
+        const statusResponse = await coreApi.transaction.status(req.params.orderId);
+        res.json({ 
+            status: 'success',
+            order_id: req.params.orderId,
+            transaction_status: statusResponse.transaction_status 
+        });
     } catch (error) {
+        console.error("Error check status:", error.message);
         res.status(500).json({ status: 'error', message: error.message });
     }
 });
@@ -89,8 +101,7 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`==================================================`);
-    console.log(` Server Kasir Berhasil Berjalan!`);
+    console.log(` Server Kasir & Integration Berhasil Berjalan!`);
     console.log(` Akses aplikasi di browser: http://localhost:${PORT}`);
     console.log(`==================================================`);
-
 });
