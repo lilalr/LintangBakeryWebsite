@@ -7,7 +7,6 @@ use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -240,9 +239,10 @@ class CheckoutController extends Controller
         $totalQuantity = collect($cart)->sum('quantity');
         $underMinMix = collect($cart)->filter(fn ($row) => $row['quantity'] < 50);
 
-        if (!app()->runningUnitTests()) {
+        if (! app()->runningUnitTests()) {
             if ($underMinMix->isNotEmpty()) {
                 $names = $underMinMix->map(fn ($row) => $row['product']->name.' ('.$row['quantity'].' bal)')->join(', ');
+
                 return redirect()->route('cart.index')->with('error', 'Ketentuan mix produk: minimal 50 bal per varian produk. Produk yang belum cukup: '.$names.'.');
             }
             if ($totalQuantity < 100) {
@@ -280,9 +280,10 @@ class CheckoutController extends Controller
         $quantity = collect($cart)->sum('quantity');
         $underMinMix = collect($cart)->filter(fn ($row) => $row['quantity'] < 50);
 
-        if (!app()->runningUnitTests()) {
+        if (! app()->runningUnitTests()) {
             if ($underMinMix->isNotEmpty()) {
                 $names = $underMinMix->map(fn ($row) => $row['product']->name.' ('.$row['quantity'].' bal)')->join(', ');
+
                 return redirect()->route('cart.index')->with('error', 'Ketentuan mix produk: minimal 50 bal per varian produk. Produk yang belum cukup: '.$names.'.');
             }
             if ($quantity < 100) {
@@ -295,8 +296,15 @@ class CheckoutController extends Controller
         $proofPath = $request->file('payment_proof')?->store('payment-proofs', 'public');
 
         $order = DB::transaction(function () use ($validated, $cart, $subtotal, $shippingCost, $paymentDue, $deposit, $proofPath, $request) {
+            $maxId = (int) (Order::max('id') ?? 0);
+            $orderCode = 'ONL-'.str_pad($maxId + 1, 4, '0', STR_PAD_LEFT);
+            while (Order::where('code', $orderCode)->exists()) {
+                $maxId++;
+                $orderCode = 'ONL-'.str_pad($maxId + 1, 4, '0', STR_PAD_LEFT);
+            }
+
             $order = Order::create([
-                'code' => 'LB-'.now()->format('Ymd').'-'.Str::upper(Str::random(5)),
+                'code' => $orderCode,
                 'user_id' => $request->user()->id,
                 'buyer' => $validated['buyer'],
                 'phone' => $validated['phone'],

@@ -8,45 +8,10 @@
     <div>
         <span class="eyebrow">KELOLA AKUN</span>
         <h1>Data Pelanggan</h1>
-        <p>Pantau data akun pembeli terdaftar, kontak WhatsApp, dan riwayat pesanan online.</p>
+        <p>Pantau data akun pembeli terdaftar, kontak, dan riwayat pesanan online.</p>
     </div>
 </div>
 
-<!-- 3 Kartu Ringkasan Bergaya Modern -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 24px;">
-    <article style="background: white; border: 1px solid #ebd9c8; border-radius: 12px; padding: 20px 22px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 2px 6px rgba(92,58,33,0.03);">
-        <div>
-            <span style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8c7b70; margin-bottom: 6px;">Total Pelanggan</span>
-            <strong style="display: block; font-size: 2rem; font-weight: 800; color: #2b1d16; line-height: 1.1;">{{ $totalCustomers }}</strong>
-            <small style="display: block; font-size: 0.8rem; color: #9c8e84; margin-top: 6px;">Akun pembeli terdaftar</small>
-        </div>
-        <div style="width: 46px; height: 46px; border-radius: 12px; background: #fdf4eb; color: #8c532b; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg style="width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-    </article>
-
-    <article style="background: white; border: 1px solid #ebd9c8; border-radius: 12px; padding: 20px 22px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 2px 6px rgba(92,58,33,0.03);">
-        <div>
-            <span style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8c7b70; margin-bottom: 6px;">Pelanggan Aktif</span>
-            <strong style="display: block; font-size: 2rem; font-weight: 800; color: #2b1d16; line-height: 1.1;">{{ $activeCustomers }}</strong>
-            <small style="display: block; font-size: 0.8rem; color: #9c8e84; margin-top: 6px;">Pernah melakukan pemesanan</small>
-        </div>
-        <div style="width: 46px; height: 46px; border-radius: 12px; background: #edf7ed; color: #2e7d32; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg style="width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
-        </div>
-    </article>
-
-    <article style="background: white; border: 1px solid #ebd9c8; border-radius: 12px; padding: 20px 22px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 2px 6px rgba(92,58,33,0.03);">
-        <div>
-            <span style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8c7b70; margin-bottom: 6px;">Pesanan Online</span>
-            <strong style="display: block; font-size: 2rem; font-weight: 800; color: #2b1d16; line-height: 1.1;">{{ $totalOrdersCount }}</strong>
-            <small style="display: block; font-size: 0.8rem; color: #9c8e84; margin-top: 6px;">Total pesanan yang masuk</small>
-        </div>
-        <div style="width: 46px; height: 46px; border-radius: 12px; background: #fff8e6; color: #b45309; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg style="width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        </div>
-    </article>
-</div>
 
 <!-- Panel Data Pelanggan -->
 <section class="panel" style="background: white; border: 1px solid #ebd9c8; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(92,58,33,0.03);">
@@ -80,53 +45,46 @@
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background: #faf6f0; border-bottom: 1px solid #ebd9c8;">
-                    <th style="padding: 13px 20px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 30%;">Pelanggan</th>
-                    <th style="padding: 13px 18px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 20%;">Kontak & WhatsApp</th>
-                    <th style="padding: 13px 18px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 22%;">Alamat Pengiriman</th>
-                    <th style="padding: 13px 16px; text-align: center; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 12%;">Pesanan</th>
-                    <th style="padding: 13px 18px; text-align: right; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 14%;">Total Belanja</th>
-                    <th style="padding: 13px 20px; text-align: center; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 10%;">Aksi</th>
+                    <th style="padding: 13px 16px; text-align: center; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 5%;">No</th>
+                    <th style="padding: 13px 20px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 26%;">Pelanggan</th>
+                    <th style="padding: 13px 18px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 25%;">Kontak</th>
+                    <th style="padding: 13px 18px; text-align: left; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 26%;">Alamat Pengiriman</th>
+                    <th style="padding: 13px 16px; text-align: center; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 10%;">Pesanan</th>
+                    <th style="padding: 13px 20px; text-align: center; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6d62; width: 8%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
             @forelse ($customers as $customer)
-                @php
-                    $cleanPhone = preg_replace('/[^0-9]/', '', $customer->phone ?? '');
-                    if (str_starts_with($cleanPhone, '0')) {
-                        $cleanPhone = '62' . substr($cleanPhone, 1);
-                    }
-                @endphp
                 <tr style="border-bottom: 1px solid #f5ede4; transition: background .12s ease;">
+                    <td style="text-align: center; vertical-align: middle; color: var(--muted); font-size: 12px; font-weight: 600;">
+                        @if (method_exists($customers, 'firstItem') && $customers->firstItem())
+                            {{ $customers->firstItem() + $loop->index }}
+                        @else
+                            {{ $loop->iteration }}
+                        @endif
+                    </td>
                     <td style="padding: 16px 20px;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #f7eee2 0%, #ecd9c4 100%); color: var(--brown, #5c3a21); border: 1px solid #e2cfbd; display: flex; align-items: center; justify-content: center; font-weight: 750; font-size: 1rem; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f7eee2 0%, #ecd9c4 100%); color: var(--brown, #5c3a21); border: 1px solid #e2cfbd; display: flex; align-items: center; justify-content: center; font-weight: 750; font-size: 0.95rem; flex-shrink: 0;">
                                 {{ strtoupper(substr($customer->name, 0, 1)) }}
                             </div>
                             <div>
                                 <strong style="display: block; font-size: 0.94rem; color: #2b1d16; line-height: 1.3;">{{ $customer->name }}</strong>
-                                <span style="display: block; color: #786b62; font-size: 0.82rem; margin-top: 1px;">{{ $customer->email }}</span>
-                                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; color: #a4968d; margin-top: 3px;">
-                                    <svg style="width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                                    Terdaftar {{ $customer->created_at->format('d/m/Y') }}
-                                </span>
                             </div>
                         </div>
                     </td>
                     <td style="padding: 16px 18px;">
                         @if ($customer->phone)
-                            <div style="font-size: 0.88rem; font-weight: 600; color: #2b1d16;">{{ $customer->phone }}</div>
-                            @if ($cleanPhone)
-                                <a href="https://wa.me/{{ $cleanPhone }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 0.74rem; font-weight: 700; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; text-decoration: none; margin-top: 5px;">
-                                    <!-- Official Clean WhatsApp SVG Icon -->
-                                    <svg style="width: 12px; height: 12px; fill: currentColor;" viewBox="0 0 24 24">
-                                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.584 1.745.882 2.791.882 3.182 0 5.768-2.587 5.768-5.766.001-3.187-2.575-5.768-5.768-5.768zm7.397 5.766c-.001 4.078-3.32 7.397-7.398 7.397-1.258 0-2.433-.319-3.468-.887l-3.844 1.008 1.028-3.753c-.662-1.077-1.021-2.327-1.021-3.765.001-4.078 3.32-7.398 7.398-7.398 4.079 0 7.399 3.32 7.405 7.398zm-4.321 3.518c-.183-.092-1.082-.534-1.25-.595-.168-.061-.29-.092-.413.092-.122.183-.474.595-.581.718-.107.122-.214.138-.397.046-.183-.092-.773-.285-1.472-.908-.544-.485-.911-1.085-1.018-1.268-.107-.183-.011-.282.08-.373.082-.082.183-.214.275-.321.092-.107.122-.183.183-.306.061-.122.031-.229-.015-.321s-.413-.993-.566-1.36c-.149-.356-.301-.307-.413-.313-.107-.005-.229-.007-.352-.007s-.321.046-.489.229c-.168.183-.642.627-.642 1.529 0 .902.657 1.773.749 1.895.092.122 1.293 1.974 3.132 2.766.438.188.78.3 1.047.385.44.14.84.12 1.157.073.353-.053 1.082-.443 1.235-.87.153-.427.153-.794.107-.87-.046-.076-.168-.122-.351-.214z"/>
-                                    </svg>
-                                    <span>WhatsApp</span>
-                                </a>
-                            @endif
+                            <div style="font-size: 0.88rem; font-weight: 600; color: #2b1d16;">
+                                {{ $customer->phone }}
+                            </div>
                         @else
-                            <span style="color: #a4968d; font-size: 0.82rem; font-style: italic;">Belum diisi</span>
+                            <div style="color: #a4968d; font-size: 0.82rem; font-style: italic;">No HP belum diisi</div>
                         @endif
+                        <div style="font-size: 0.82rem; color: #786b62; margin-top: 4px; display: flex; align-items: center; gap: 5px;">
+                            <svg style="width: 12px; height: 12px; stroke: #9c8e84; fill: none; stroke-width: 2; flex-shrink: 0;" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <span>{{ $customer->email }}</span>
+                        </div>
                     </td>
                     <td style="padding: 16px 18px;">
                         @if ($customer->address)
@@ -139,14 +97,14 @@
                         @endif
                     </td>
                     <td style="padding: 16px 16px; text-align: center;">
-                        <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 650; background: #fdf5eb; color: var(--brown, #5c3a21); border: 1px solid #ebd9c8;">
-                            {{ $customer->orders_count }} pesanan
-                        </span>
-                    </td>
-                    <td style="padding: 16px 18px; text-align: right;">
-                        <strong style="color: #2b1d16; font-size: 0.95rem; font-weight: 750;">
-                            Rp {{ number_format($customer->total_spent, 0, ',', '.') }}
-                        </strong>
+                        @if (($customer->active_orders_count ?? 0) > 0)
+                            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 0.74rem; font-weight: 700; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; white-space: nowrap;">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #0284c7;"></span>
+                                {{ $customer->active_orders_count }} Pesanan Aktif
+                            </span>
+                        @else
+                            <span style="color: #a4968d; font-size: 0.88rem; font-weight: 500;">-</span>
+                        @endif
                     </td>
                     <td style="padding: 16px 20px; text-align: center;">
                         <a href="{{ route('admin.customers.show', $customer) }}" class="button button-small button-light" style="padding: 6px 12px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; border-radius: 6px;">

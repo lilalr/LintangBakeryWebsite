@@ -34,7 +34,6 @@
     @php
         $statusList = [
             'Menunggu Konfirmasi',
-            'Pembayaran DP Disetujui',
             'Sedang Diproduksi',
             'Siap Dikirim',
             'Sedang Dikirim',
@@ -42,7 +41,7 @@
         ];
         $currentIdx = array_search($order->status, $statusList);
         if ($currentIdx === false) {
-            $currentIdx = ($order->status === 'Sudah Sampai') ? 4 : 0;
+            $currentIdx = in_array($order->status, ['Sudah Sampai', 'Selesai/Lunas']) ? 4 : 0;
         }
     @endphp
 

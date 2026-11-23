@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,6 +28,9 @@ class CustomerController extends Controller
         $query = User::query()
             ->where('role', 'buyer')
             ->withCount('orders')
+            ->withCount(['orders as active_orders_count' => function ($q) {
+                $q->whereNotIn('status', ['Selesai/Lunas', 'Dibatalkan']);
+            }])
             ->with(['orders' => function ($q) {
                 $q->whereIn('status', self::CONFIRMED_STATUSES);
             }])
@@ -48,12 +52,13 @@ class CustomerController extends Controller
             $customer->total_spent = (float) $customer->orders->sum(function ($order) {
                 return (float) $order->total + (float) $order->shipping_cost;
             });
+
             return $customer;
         });
 
         $totalCustomers = User::where('role', 'buyer')->count();
         $activeCustomers = User::where('role', 'buyer')->has('orders')->count();
-        $totalOrdersCount = \App\Models\Order::count();
+        $totalOrdersCount = Order::count();
 
         return view('admin.customers.index', compact('customers', 'totalCustomers', 'activeCustomers', 'totalOrdersCount', 'search'));
     }

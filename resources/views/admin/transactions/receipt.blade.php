@@ -255,7 +255,7 @@
         {{-- Meta Data Transaksi --}}
         <div class="meta-row">
             <span>No. Struk</span>
-            <strong>#TRX-{{ str_pad($transaction->id, 5, '0', STR_PAD_LEFT) }}</strong>
+            <strong>#TRX-{{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</strong>
         </div>
         <div class="meta-row">
             <span>Tanggal</span>
@@ -265,10 +265,12 @@
             <span>Kasir</span>
             <span>{{ auth()->user()?->name ?? 'Kasir Utama' }}</span>
         </div>
+        @if ($transaction->buyer_name && $transaction->buyer_name !== '-')
         <div class="meta-row">
             <span>Pelanggan</span>
             <span>{{ $transaction->buyer_name }}</span>
         </div>
+        @endif
 
         <div class="divider"></div>
 

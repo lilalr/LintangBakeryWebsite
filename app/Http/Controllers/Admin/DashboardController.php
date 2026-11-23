@@ -63,8 +63,8 @@ class DashboardController extends Controller
         $currentProductNames = Product::pluck('name', 'id');
 
         $onlineTop = OrderItem::whereHas('order', function ($q) {
-                $q->whereIn('status', ['Sudah Sampai', 'Selesai/Lunas']);
-            })
+            $q->whereIn('status', ['Sudah Sampai', 'Selesai/Lunas']);
+        })
             ->select('product_id', 'name', DB::raw('SUM(quantity) as qty'), DB::raw('SUM(subtotal) as revenue'))
             ->groupBy('product_id', 'name')
             ->get();
@@ -76,38 +76,38 @@ class DashboardController extends Controller
         $mergedProducts = [];
         foreach ($onlineTop as $item) {
             // Use product_id as key when available; fall back to stored name
-            $key = $item->product_id ?? 'name__' . $item->name;
+            $key = $item->product_id ?? 'name__'.$item->name;
             $displayName = ($item->product_id && $currentProductNames->has($item->product_id))
                 ? $currentProductNames[$item->product_id]
                 : $item->name;
 
             if (isset($mergedProducts[$key])) {
-                $mergedProducts[$key]['qty']     += (int) $item->qty;
+                $mergedProducts[$key]['qty'] += (int) $item->qty;
                 $mergedProducts[$key]['revenue'] += (float) $item->revenue;
             } else {
                 $mergedProducts[$key] = [
-                    'name'    => $displayName,
-                    'qty'     => (int) $item->qty,
+                    'name' => $displayName,
+                    'qty' => (int) $item->qty,
                     'revenue' => (float) $item->revenue,
                 ];
             }
         }
 
         foreach ($offlineTop as $item) {
-            $key = $item->product_id ?? 'name__' . $item->name;
+            $key = $item->product_id ?? 'name__'.$item->name;
             $displayName = ($item->product_id && $currentProductNames->has($item->product_id))
                 ? $currentProductNames[$item->product_id]
                 : $item->name;
 
             if (isset($mergedProducts[$key])) {
-                $mergedProducts[$key]['qty']     += (int) $item->qty;
+                $mergedProducts[$key]['qty'] += (int) $item->qty;
                 $mergedProducts[$key]['revenue'] += (float) $item->revenue;
                 // Always use the latest name from the products table
                 $mergedProducts[$key]['name'] = $displayName;
             } else {
                 $mergedProducts[$key] = [
-                    'name'    => $displayName,
-                    'qty'     => (int) $item->qty,
+                    'name' => $displayName,
+                    'qty' => (int) $item->qty,
                     'revenue' => (float) $item->revenue,
                 ];
             }
@@ -138,4 +138,3 @@ class DashboardController extends Controller
         ));
     }
 }
-

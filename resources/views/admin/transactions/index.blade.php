@@ -11,18 +11,6 @@
     </div>
 </div>
 
-@php
-    $activeTab = request('tab') === 'riwayat' || request()->has('page') ? 'riwayat' : 'kasir';
-@endphp
-
-{{-- Tab Navigasi Kasir --}}
-<nav class="report-tabs" id="posTabs">
-    <button class="report-tab {{ $activeTab === 'kasir' ? 'active' : '' }}" data-tab="kasir" type="button">Kasir</button>
-    <button class="report-tab {{ $activeTab === 'riwayat' ? 'active' : '' }}" data-tab="riwayat" type="button">Riwayat Transaksi</button>
-</nav>
-
-{{-- TAB 1: KASIR --}}
-<div class="pos-tab-content {{ $activeTab === 'kasir' ? 'active' : '' }}" id="tab-kasir">
     <div class="pos-layout">
         {{-- Sisi Kiri: Katalog Produk --}}
         <div class="pos-catalog-panel">
@@ -66,8 +54,8 @@
             </div>
 
             <div style="margin-bottom: 12px;">
-                <label style="font-size: 11px; font-weight: 700; color: var(--muted); display:block; margin-bottom: 4px;">Nama Pembeli</label>
-                <input type="text" id="buyerNameInput" value="Pelanggan Toko" class="pos-search-input" style="min-height: 38px;" placeholder="Nama pembeli...">
+                <label style="font-size: 11px; font-weight: 700; color: var(--muted); display:block; margin-bottom: 4px;">Nama Pembeli (Opsional)</label>
+                <input type="text" id="buyerNameInput" value="" class="pos-search-input" style="min-height: 38px;" placeholder="Nama pembeli (kosongkan jika umum)...">
             </div>
 
             {{-- List item keranjang --}}
@@ -115,100 +103,6 @@
             </button>
         </div>
     </div>
-</div>
-
-{{-- TAB 2: RIWAYAT TRANSAKSI --}}
-<div class="pos-tab-content {{ $activeTab === 'riwayat' ? 'active' : '' }}" id="tab-riwayat">
-    <section class="panel">
-        <div class="panel-heading">
-            <div>
-                <h2>Riwayat Penjualan Toko</h2>
-                <p>{{ $transactions->total() }} transaksi tersimpan di sistem.</p>
-            </div>
-        </div>
-        <div class="table-scroll">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>No. Transaksi</th>
-                        <th>Pembeli</th>
-                        <th>Item Terjual</th>
-                        <th>Pembayaran</th>
-                        <th>Total</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse ($transactions as $transaction)
-                    <tr>
-                        <td>
-                            <strong>{{ $transaction->date->format('d/m/Y') }}</strong>
-                            <small class="muted">{{ $transaction->created_at->format('H:i') }} WIB</small>
-                        </td>
-                        <td>
-                            <code style="font-size: 11px; background:#f5ece1; padding:3px 6px; border-radius:4px;">TRX-{{ $transaction->id }}</code>
-                        </td>
-                        <td>
-                            <strong>{{ $transaction->buyer_name }}</strong>
-                            @if ($transaction->notes)
-                                <small class="muted">{{ $transaction->notes }}</small>
-                            @endif
-                        </td>
-                        <td>
-                            @foreach ($transaction->items as $item)
-                                <div>{{ $item->name }} &times; {{ $item->quantity }} bal</div>
-                            @endforeach
-                            <small class="muted">Total {{ $transaction->items->sum('quantity') }} bal</small>
-                        </td>
-                        <td>
-                            @if ($transaction->payment_method === 'cash')
-                                <span class="role-pill" style="background:#e6f4ea; color:#137333; display:inline-flex; align-items:center; gap:5px;">
-                                    <svg style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
-                                    <span>Tunai</span>
-                                </span>
-                            @elseif (str_starts_with($transaction->payment_method, 'qris'))
-                                <span class="role-pill" style="background:#fde8e8; color:#b71c1c; display:inline-flex; align-items:center; gap:5px;">
-                                    <svg style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/></svg>
-                                    <span>QRIS</span>
-                                </span>
-                            @else
-                                <span class="role-pill" style="background:#e8f0fe; color:#1a73e8; display:inline-flex; align-items:center; gap:5px;">
-                                    <svg style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                                    <span>{{ strtoupper($transaction->payment_method) }}</span>
-                                </span>
-                            @endif
-                        </td>
-                        <td>
-                            <strong style="font-size: 14px;">Rp {{ number_format($transaction->total, 0, ',', '.') }}</strong>
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 6px; align-items: center;">
-                                <a href="{{ route('admin.transactions.receipt', $transaction) }}" target="_blank" class="button button-small button-light" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" title="Cetak Struk Kasir">
-                                    <svg style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                                    Struk
-                                </a>
-                                <form method="post" action="{{ route('admin.transactions.destroy', $transaction) }}" onsubmit="return confirm('Batalkan (void) transaksi ini? Stok yang terjual akan otomatis dikembalikan ke inventori.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="button button-small button-danger" style="padding: 4px 8px; font-size: 11px;">
-                                        Void
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="table-empty">Belum ada riwayat transaksi kasir.</td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination-wrap">{{ $transactions->appends(['tab' => 'riwayat'])->links() }}</div>
-    </section>
-</div>
 
 {{-- MODAL 1: BAYAR TUNAI (CASH NUMPAD) --}}
 <div class="pos-modal-overlay" id="cashModal">
@@ -311,10 +205,12 @@
                     <span style="color: var(--muted);">No. Transaksi</span>
                     <strong style="color: var(--brown); font-family: monospace; font-size: 14px;">{{ $stx['code'] }}</strong>
                 </div>
+                @if (!empty($stx['buyer']) && $stx['buyer'] !== '-')
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                     <span style="color: var(--muted);">Pembeli</span>
                     <strong>{{ $stx['buyer'] }}</strong>
                 </div>
+                @endif
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                     <span style="color: var(--muted);">Metode Pembayaran</span>
                     <span style="text-transform: uppercase; font-weight: 700; color: var(--brown-dark);">{{ $stx['payment_method'] }}</span>
@@ -357,30 +253,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    const posTabs = document.querySelectorAll('#posTabs .report-tab');
-    const posContents = document.querySelectorAll('.pos-tab-content');
-
-    function switchTab(tabName) {
-        posTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-        posContents.forEach(c => c.classList.toggle('active', c.id === 'tab-' + tabName));
-    }
-
-    posTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const targetTab = this.dataset.tab;
-            switchTab(targetTab);
-            const url = new URL(window.location.href);
-            url.searchParams.set('tab', targetTab);
-            window.history.replaceState({}, '', url);
-        });
-    });
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('tab') === 'riwayat' || urlParams.has('page')) {
-        switchTab('riwayat');
-    }
-
     // POS Cart State
     let cart = [];
     let selectedPayment = 'cash';
@@ -702,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Submit POS Transaction Function
     function submitPosTransaction(method, notes) {
         const form = document.getElementById('posSubmitForm');
-        const buyerName = document.getElementById('buyerNameInput').value.trim() || 'Pelanggan Toko';
+        const buyerName = document.getElementById('buyerNameInput').value.trim() || '-';
 
         document.getElementById('submitBuyerName').value = buyerName;
         document.getElementById('submitPaymentMethod').value = method;

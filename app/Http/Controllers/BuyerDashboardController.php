@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,7 +28,7 @@ class BuyerDashboardController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
 
-    public function showOrder(Request $request, \App\Models\Order $order): View
+    public function showOrder(Request $request, Order $order): View
     {
         abort_unless($order->user_id === $request->user()->id, 403, 'Akses pesanan ditolak.');
         $order->load('items.product');
@@ -35,7 +36,7 @@ class BuyerDashboardController extends Controller
         return view('store.orders.show', compact('order'));
     }
 
-    public function uploadSettlement(Request $request, \App\Models\Order $order): RedirectResponse
+    public function uploadSettlement(Request $request, Order $order): RedirectResponse
     {
         abort_unless($order->user_id === $request->user()->id, 403, 'Akses pesanan ditolak.');
         abort_unless($order->payment_type === 'dp' && $order->remaining > 0, 422, 'Pesanan ini tidak memerlukan pelunasan sisa.');

@@ -39,7 +39,7 @@
             <div class="panel-heading" style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f0e6dd;">
                 <div>
                     <h2 style="font-size: 16px; margin-bottom: 2px;">Tren Penjualan 7 Hari Terakhir</h2>
-                    <p style="font-size: 12px; color: var(--muted); margin: 0;">Total omzet per hari (online &amp; offline kasir)</p>
+                    <p style="font-size: 12px; color: var(--muted); margin: 0;">Total omzet per hari (online &amp; offline)</p>
                 </div>
                 <div style="display: flex; gap: 10px; font-size: 11.5px; font-weight: 700;">
                     <span style="display: inline-flex; align-items: center; gap: 5px; color: #8b4513;">
@@ -82,7 +82,7 @@
                             {{-- Offline Bar (Bottom Segment) --}}
                             @if ($offlineH > 0)
                                 <rect x="{{ $barX }}" y="{{ $offlineY }}" width="{{ $barW }}" height="{{ $offlineH }}" rx="{{ $onlineH > 0 ? 0 : 4 }}" fill="#2e7d32">
-                                    <title>{{ $day['label'] }} ({{ $day['day_name'] }}): Kasir Offline Rp {{ number_format($day['offline'], 0, ',', '.') }}</title>
+                                    <title>{{ $day['label'] }} ({{ $day['day_name'] }}): Offline Rp {{ number_format($day['offline'], 0, ',', '.') }}</title>
                                 </rect>
                             @endif
 
@@ -128,7 +128,7 @@
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 6px;">
                 <span style="color: #8b4513; font-weight: 700;">Online: {{ $stats['online_pct'] }}% (Rp {{ number_format($stats['online_sales'], 0, ',', '.') }})</span>
-                <span style="color: #2e7d32; font-weight: 700;">Kasir: {{ $stats['offline_pct'] }}% (Rp {{ number_format($stats['offline_sales'], 0, ',', '.') }})</span>
+                <span style="color: #2e7d32; font-weight: 700;">Offline: {{ $stats['offline_pct'] }}% (Rp {{ number_format($stats['offline_sales'], 0, ',', '.') }})</span>
             </div>
         </div>
     </section>
