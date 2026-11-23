@@ -112,6 +112,16 @@
             <strong>Rp {{ $totalTransactions > 0 ? number_format(round($totalRevenue / $totalTransactions), 0, ',', '.') : '0' }}</strong>
             <small>nilai belanja rata-rata</small>
         </article>
+        <article class="stat-card" style="{{ ($totalLoss ?? 0) > 0 ? 'border-left: 3px solid #dc3545;' : '' }}">
+            <span>Kerugian Stok</span>
+            @if (($totalLoss ?? 0) > 0)
+                <strong style="color:#c53030;">Rp {{ number_format($totalLoss, 0, ',', '.') }}</strong>
+                <small>rusak &amp; kedaluwarsa</small>
+            @else
+                <strong>Rp 0</strong>
+                <small>Belum ada kerugian stok.</small>
+            @endif
+        </article>
     </div>
 
     <section class="panel">

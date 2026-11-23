@@ -7,6 +7,8 @@ use App\Models\OfflineTransaction;
 use App\Models\OfflineTransactionItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\StockMovement;
+use App\Models\StockMutation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -389,12 +391,33 @@ class ReportController extends Controller
         $totalQris = $totalStoreQris + $totalOnlineQris;
         $totalOnlineBankTransfer = (float) $dailyBreakdown->sum('online_bank_transfer');
 
+        $lossMovements = StockMovement::whereIn('reason', ['Rusak', 'Kedaluwarsa'])
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->with('product')
+            ->get();
+
+        $totalLoss = (float) $lossMovements->sum(function ($m) {
+            $unitPrice = (float) ($m->unit_price > 0
+                ? $m->unit_price
+                : (((float) ($m->product?->cost_price ?? 0) > 0)
+                    ? $m->product->cost_price
+                    : ($m->product?->price_per_bal ?? 0)));
+
+            return (int) $m->quantity * $unitPrice;
+        }) + (float) StockMutation::where('type', 'out')
+            ->where('loss_amount', '>', 0)
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->sum('loss_amount');
+
         return [
             'onlineRevenue' => $onlineRevenue,
             'offlineRevenue' => $offlineRevenue,
             'totalRevenue' => $totalRevenue,
             'totalHpp' => $totalHpp,
             'grossProfit' => $totalRevenue - $totalHpp,
+            'totalLoss' => $totalLoss,
             'totalTransactions' => $totalTransactions,
             'totalItemsSold' => $totalItemsSold,
             'onlineCount' => $onlineCount,

@@ -7,10 +7,10 @@
 <div class="content-heading"><div><span class="eyebrow">PERSEDIAAN OFFLINE</span><h1>Stok produk</h1><p>Stok barang jadi untuk penjualan toko. Pesanan online dibuat sesuai pesanan (made by order), sehingga tidak memengaruhi stok.</p></div></div>
 @include('admin.stock._nav', ['active' => 'ringkasan'])
 @if ($low->isNotEmpty())
-    <div class="alert alert-warning"><strong>Peringatan stok:</strong> {{ $low->map(fn ($p) => $p->name.' ('.strtolower($p->stockStatus()).', '.$p->stock.' bal)')->join(', ') }}. Rencanakan produksi berikutnya.</div>
+    <div class="alert alert-warning"><strong>Peringatan Stok Menipis:</strong> {{ $low->map(fn ($p) => $p->name.' ('.strtolower($p->stockStatus()).', '.$p->stock.' bal)')->join(', ') }}. Rencanakan produksi berikutnya.</div>
 @endif
-@if ($expiring->isNotEmpty())
-    <div class="alert alert-error"><strong>Mendekati kedaluwarsa:</strong> {{ $expiring->map(fn ($b) => $b->product->name.' ('.($b->daysLeft() < 0 ? 'sudah kedaluwarsa' : $b->daysLeft().' hari lagi').')')->join(', ') }}. Jual lebih dulu barang yang dekat kedaluwarsa.</div>
+@if ($expiring->isNotEmpty() || \App\Models\StockMutation::where('type', 'in')->whereNotNull('expiry_date')->where('expiry_date', '<=', now()->addDays(7)->toDateString())->exists())
+    <div class="alert alert-error"><strong>Peringatan Kedaluwarsa:</strong> {{ $expiring->isNotEmpty() ? $expiring->map(fn ($b) => $b->product->name.' ('.($b->daysLeft() < 0 ? 'sudah kedaluwarsa' : $b->daysLeft().' hari lagi').')')->join(', ') : 'Ada produk mendekati tanggal kedaluwarsa' }}. Jual lebih dulu barang yang dekat kedaluwarsa.</div>
 @endif
 <section class="panel"><div class="table-scroll"><table><thead><tr><th>Produk</th><th>Stok saat ini</th><th>Stok minimum</th><th>Status</th><th>Kedaluwarsa terdekat</th></tr></thead><tbody>
 @forelse ($products as $product)
