@@ -46,7 +46,7 @@ class StockService
 
     /**
      * @param  array{date?: string, reference?: string, note?: string, admin_name?: string, batch_id?: int}  $meta
-     *                                                                                                       batch_id: ambil dari batch tertentu dulu (misalnya membuang batch kedaluwarsa), sisanya FEFO.
+     *                                                                                                              batch_id: ambil dari batch tertentu dulu (misalnya membuang batch kedaluwarsa), sisanya FEFO.
      */
     public function issue(Product $product, int $quantity, string $reason, array $meta = []): StockMovement
     {
