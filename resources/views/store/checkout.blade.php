@@ -369,11 +369,15 @@
                     <div class="qris-img-wrap">
                         <img id="qrisCheckoutImage" src="" alt="QRIS Dinamis Lintang Bakery">
                     </div>
-                    <div style="margin-top: 10px;">
+                    <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                         <a id="btnDownloadQris" href="#" download="QRIS-Lintang-Bakery.png" target="_blank" class="button button-small button-light" style="display:inline-flex; align-items:center; gap:6px;">
                             <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             <span>Unduh Kode QR</span>
                         </a>
+                        <button type="button" onclick="copyCheckoutQrisUrl()" class="button button-small button-light" style="display:inline-flex; align-items:center; gap:6px;">
+                            <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <span id="copyCheckoutQrisText">Salin Link Simulator</span>
+                        </button>
                     </div>
                 </div>
 
@@ -501,6 +505,7 @@
                 const data = await response.json();
 
                 if (data.qr_url) {
+                    window.checkoutQrisUrl = data.qr_url;
                     // Pasang gambar QRIS dari API Kasir Midtrans
                     if (img) {
                         img.src = data.qr_url;
@@ -510,6 +515,7 @@
                 } else if (data.qr_string) {
                     // Fallback jika API mengembalikan QR string
                     const generatedUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=' + encodeURIComponent(data.qr_string);
+                    window.checkoutQrisUrl = generatedUrl;
                     if (img) {
                         img.src = generatedUrl;
                         img.style.opacity = '1';
@@ -522,6 +528,21 @@
                 if (img) img.style.opacity = '1';
             }
         }
+
+        window.copyCheckoutQrisUrl = function() {
+            if (!window.checkoutQrisUrl) {
+                alert('QRIS belum selesai dimuat, tunggu sebentar.');
+                return;
+            }
+            navigator.clipboard.writeText(window.checkoutQrisUrl).then(() => {
+                const txt = document.getElementById('copyCheckoutQrisText');
+                if (txt) {
+                    const old = txt.textContent;
+                    txt.textContent = 'Link Tersalin! ✓';
+                    setTimeout(() => txt.textContent = old, 2000);
+                }
+            });
+        };
 
         function refreshPaymentUI() {
             const type = getActivePaymentType();

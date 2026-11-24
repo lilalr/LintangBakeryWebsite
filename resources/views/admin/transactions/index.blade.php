@@ -172,6 +172,16 @@
             <div id="qris-loading" style="padding: 30px 0; color: #718096; font-weight: 500;">Meng-generate QRIS...</div>
             <img id="qris-image" src="" alt="QRIS Code" style="margin: 8px auto; width: 220px; height: 220px; object-fit: contain; display: none;">
             
+            <div id="qris-sandbox-helper" style="display: none; margin: 8px 0; font-size: 11px; text-align: center;">
+                <button type="button" onclick="copyQrisUrl()" class="button button-small button-light" style="font-size: 11px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span id="copyQrisUrlText">Salin URL QR (Simulator)</span>
+                </button>
+                <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank" style="margin-left: 8px; color: #8b4513; font-weight: 600; text-decoration: underline;">
+                    Buka Simulator Midtrans ↗
+                </a>
+            </div>
+
             <p style="font-size: 11px; color: #718096; margin-top: 8px;">Bisa BCA Mobile, GoPay, OVO, ShopeePay, DANA, dll.</p>
         </div>
 
@@ -525,16 +535,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 qrImg.src = data.qr_url;
                 loading.style.display = 'none';
                 qrImg.style.display = 'block';
+                window.currentQrisUrl = data.qr_url;
+                const helper = document.getElementById('qris-sandbox-helper');
+                if (helper) helper.style.display = 'block';
             } else {
                 alert('Gagal mengambil QRIS: ' + data.message);
                 closeQrisModal();
             }
         } catch (error) {
             console.error(error);
-            alert('Gagal terhubung ke Server QRIS. Pastikan server Node.js (node server.cjs) sedang berjalan di port 3000.');
+            alert('Gagal terhubung ke Server QRIS. Pastikan server Node.js (node server.js) sedang berjalan di port 3000.');
             closeQrisModal();
         }
     }
+
+    window.copyQrisUrl = function() {
+        if (!window.currentQrisUrl) return;
+        navigator.clipboard.writeText(window.currentQrisUrl).then(() => {
+            const txt = document.getElementById('copyQrisUrlText');
+            if (txt) {
+                const old = txt.textContent;
+                txt.textContent = 'URL Tersalin! ✓';
+                setTimeout(() => txt.textContent = old, 2000);
+            }
+        });
+    };
 
     window.closeQrisModal = function() {
         document.getElementById('modal-qris').classList.remove('active');
