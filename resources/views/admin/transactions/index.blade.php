@@ -172,6 +172,12 @@
             <div id="qris-loading" style="padding: 30px 0; color: #718096; font-weight: 500;">Meng-generate QRIS...</div>
             <img id="qris-image" src="" alt="QRIS Code" style="margin: 8px auto; width: 220px; height: 220px; object-fit: contain; display: none;">
             
+            {{-- Banner Status Deteksi Otomatis --}}
+            <div id="qris-status-banner" style="display: none; margin: 10px 0 6px; padding: 9px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fff8e6; color: #b7791f; border: 1px solid #f6e05e; align-items: center; justify-content: center; gap: 8px;">
+                <span id="qris-spinner" style="width: 13px; height: 13px; border: 2px solid #b7791f; border-top-color: transparent; border-radius: 50%; display: inline-block; animation: pos-spin 1s linear infinite;"></span>
+                <span id="qris-status-text">Menunggu pembayaran otomatis terdeteksi...</span>
+            </div>
+
             <div id="qris-sandbox-helper" style="display: none; margin: 8px 0; font-size: 11px; text-align: center;">
                 <button type="button" onclick="copyQrisUrl()" class="button button-small button-light" style="font-size: 11px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
                     <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -185,8 +191,8 @@
             <p style="font-size: 11px; color: #718096; margin-top: 8px;">Bisa BCA Mobile, GoPay, OVO, ShopeePay, DANA, dll.</p>
         </div>
 
-        <button type="button" onclick="confirmQrisPayment()" class="button button-full" style="margin-top: 14px; background-color: #16a34a; border-color: #16a34a; color: white; font-weight: 700;">
-            ✓ Konfirmasi Pembayaran QRIS Berhasil
+        <button type="button" id="btnConfirmQris" onclick="confirmQrisPayment()" class="button button-full" style="margin-top: 14px; background-color: #16a34a; border-color: #16a34a; color: white; font-weight: 700;">
+            ✓ Konfirmasi Manual (Jika Diperlukan)
         </button>
     </div>
 </div>
@@ -536,8 +542,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 loading.style.display = 'none';
                 qrImg.style.display = 'block';
                 window.currentQrisUrl = data.qr_url;
+                window.currentQrisOrderId = data.order_id;
                 const helper = document.getElementById('qris-sandbox-helper');
                 if (helper) helper.style.display = 'block';
+
+                // Mulai deteksi pembayaran otomatis secara real-time
+                startQrisPolling(data.order_id);
             } else {
                 alert('Gagal mengambil QRIS: ' + data.message);
                 closeQrisModal();
@@ -547,6 +557,79 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Gagal terhubung ke Server QRIS. Pastikan server Node.js (node server.js) sedang berjalan di port 3000.');
             closeQrisModal();
         }
+    }
+
+    let qrisPollingInterval = null;
+
+    function stopQrisPolling() {
+        if (qrisPollingInterval) {
+            clearInterval(qrisPollingInterval);
+            qrisPollingInterval = null;
+        }
+    }
+
+    function startQrisPolling(orderId) {
+        stopQrisPolling();
+        const banner = document.getElementById('qris-status-banner');
+        const text = document.getElementById('qris-status-text');
+        const spinner = document.getElementById('qris-spinner');
+        const btn = document.getElementById('btnConfirmQris');
+
+        if (banner) {
+            banner.style.display = 'flex';
+            banner.style.background = '#fff8e6';
+            banner.style.color = '#b7791f';
+            banner.style.borderColor = '#f6e05e';
+        }
+        if (spinner) spinner.style.display = 'inline-block';
+        if (text) text.textContent = 'Menunggu pembayaran otomatis terdeteksi...';
+        if (btn) {
+            btn.textContent = '✓ Konfirmasi Manual (Jika Diperlukan)';
+            btn.style.backgroundColor = '#16a34a';
+            btn.disabled = false;
+        }
+
+        qrisPollingInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`http://localhost:3000/api/check-status/${orderId}`);
+                if (!res.ok) return;
+                const json = await res.json();
+                if (json.transaction_status === 'settlement' || json.transaction_status === 'capture') {
+                    stopQrisPolling();
+                    handleQrisAutoSuccess(orderId);
+                }
+            } catch (err) {
+                // Abaikan kesalahan jeda jaringan sesaat
+            }
+        }, 2000);
+    }
+
+    function handleQrisAutoSuccess(orderId) {
+        const banner = document.getElementById('qris-status-banner');
+        const text = document.getElementById('qris-status-text');
+        const spinner = document.getElementById('qris-spinner');
+        const btn = document.getElementById('btnConfirmQris');
+
+        if (spinner) spinner.style.display = 'none';
+        if (banner) {
+            banner.style.background = '#e6f4ea';
+            banner.style.color = '#1e7e34';
+            banner.style.borderColor = '#34a853';
+        }
+        if (text) text.innerHTML = '<strong>✓ Pembayaran Berhasil Diterima!</strong> Menyimpan transaksi...';
+
+        if (btn) {
+            btn.textContent = '✓ Pembayaran Lunas (Memproses...)';
+            btn.style.backgroundColor = '#15803d';
+            btn.disabled = true;
+        }
+
+        // Beri jeda 800ms agar kasir melihat notifikasi hijau sebelum halaman dialihkan
+        setTimeout(() => {
+            const total = getCartTotal();
+            const note = `QRIS Midtrans Terverifikasi Otomatis (Order ID: ${orderId})`;
+            submitPosTransaction('qris', note);
+        }, 800);
     }
 
     window.copyQrisUrl = function() {
@@ -562,12 +645,15 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.closeQrisModal = function() {
+        stopQrisPolling();
         document.getElementById('modal-qris').classList.remove('active');
     };
 
     window.confirmQrisPayment = function() {
+        stopQrisPolling();
         const total = getCartTotal();
-        const note = `QRIS Dinamis Midtrans Terverifikasi: Rp ${total.toLocaleString('id-ID')}`;
+        const orderId = window.currentQrisOrderId || 'MANUAL';
+        const note = `QRIS Dinamis Midtrans Terverifikasi (Order ID: ${orderId})`;
         submitPosTransaction('qris', note);
     };
 

@@ -376,8 +376,17 @@
                         </a>
                         <button type="button" onclick="copyCheckoutQrisUrl()" class="button button-small button-light" style="display:inline-flex; align-items:center; gap:6px;">
                             <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            <span id="copyCheckoutQrisText">Salin Link Simulator</span>
+                            <span id="copyCheckoutQrisText">Salin URL QR (Simulator)</span>
                         </button>
+                        <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank" class="button button-small button-light" style="display:inline-flex; align-items:center; gap:6px; color:#8b4513;">
+                            <span>Buka Simulator ↗</span>
+                        </a>
+                    </div>
+
+                    {{-- Banner Live Status Real-Time --}}
+                    <div id="checkoutQrisStatusBanner" style="display: none; margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fff8e6; color: #b7791f; border: 1px solid #f6e05e; align-items: center; justify-content: center; gap: 8px;">
+                        <span id="checkoutQrisSpinner" style="width: 13px; height: 13px; border: 2px solid #b7791f; border-top-color: transparent; border-radius: 50%; display: inline-block; animation: pos-spin 1s linear infinite;"></span>
+                        <span id="checkoutQrisStatusText">Menunggu pembayaran otomatis terdeteksi...</span>
                     </div>
                 </div>
 
@@ -512,6 +521,11 @@
                         img.style.opacity = '1';
                     }
                     if (btnDownload) btnDownload.href = data.qr_url;
+
+                    // Mulai deteksi otomatis pembayaran online
+                    if (data.order_id) {
+                        startCheckoutQrisPolling(data.order_id);
+                    }
                 } else if (data.qr_string) {
                     // Fallback jika API mengembalikan QR string
                     const generatedUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=' + encodeURIComponent(data.qr_string);
@@ -527,6 +541,44 @@
                 // Fallback jika server.js belum dinyalakan
                 if (img) img.style.opacity = '1';
             }
+        }
+
+        let checkoutQrisInterval = null;
+
+        function startCheckoutQrisPolling(orderId) {
+            if (checkoutQrisInterval) clearInterval(checkoutQrisInterval);
+            const banner = document.getElementById('checkoutQrisStatusBanner');
+            const text = document.getElementById('checkoutQrisStatusText');
+            const spinner = document.getElementById('checkoutQrisSpinner');
+            if (banner) {
+                banner.style.display = 'flex';
+                banner.style.background = '#fff8e6';
+                banner.style.color = '#b7791f';
+                banner.style.borderColor = '#f6e05e';
+            }
+            if (spinner) spinner.style.display = 'inline-block';
+            if (text) text.textContent = 'Menunggu pembayaran otomatis terdeteksi...';
+
+            checkoutQrisInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`http://localhost:3000/api/check-status/${orderId}`);
+                    if (!res.ok) return;
+                    const json = await res.json();
+                    if (json.transaction_status === 'settlement' || json.transaction_status === 'capture') {
+                        clearInterval(checkoutQrisInterval);
+                        checkoutQrisInterval = null;
+                        if (spinner) spinner.style.display = 'none';
+                        if (banner) {
+                            banner.style.background = '#e6f4ea';
+                            banner.style.color = '#1e7e34';
+                            banner.style.borderColor = '#34a853';
+                        }
+                        if (text) text.innerHTML = '<strong>✓ Pembayaran Berhasil Diterima oleh Midtrans!</strong>';
+                    }
+                } catch (e) {
+                    // Ignore
+                }
+            }, 2000);
         }
 
         window.copyCheckoutQrisUrl = function() {
