@@ -178,21 +178,11 @@
                 <span id="qris-status-text">Menunggu pembayaran otomatis terdeteksi...</span>
             </div>
 
-            <div id="qris-sandbox-helper" style="display: none; margin: 8px 0; font-size: 11px; text-align: center;">
-                <button type="button" onclick="copyQrisUrl()" class="button button-small button-light" style="font-size: 11px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
-                    <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    <span id="copyQrisUrlText">Salin URL QR (Simulator)</span>
-                </button>
-                <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank" style="margin-left: 8px; color: #8b4513; font-weight: 600; text-decoration: underline;">
-                    Buka Simulator Midtrans ↗
-                </a>
-            </div>
-
             <p style="font-size: 11px; color: #718096; margin-top: 8px;">Bisa BCA Mobile, GoPay, OVO, ShopeePay, DANA, dll.</p>
         </div>
 
         <button type="button" id="btnConfirmQris" onclick="confirmQrisPayment()" class="button button-full" style="margin-top: 14px; background-color: #16a34a; border-color: #16a34a; color: white; font-weight: 700;">
-            ✓ Konfirmasi Manual (Jika Diperlukan)
+            ✓ Konfirmasi Pembayaran QRIS Berhasil
         </button>
     </div>
 </div>
@@ -541,10 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 qrImg.src = data.qr_url;
                 loading.style.display = 'none';
                 qrImg.style.display = 'block';
-                window.currentQrisUrl = data.qr_url;
                 window.currentQrisOrderId = data.order_id;
-                const helper = document.getElementById('qris-sandbox-helper');
-                if (helper) helper.style.display = 'block';
 
                 // Mulai deteksi pembayaran otomatis secara real-time
                 startQrisPolling(data.order_id);
@@ -631,18 +618,6 @@ document.addEventListener('DOMContentLoaded', function() {
             submitPosTransaction('qris', note);
         }, 800);
     }
-
-    window.copyQrisUrl = function() {
-        if (!window.currentQrisUrl) return;
-        navigator.clipboard.writeText(window.currentQrisUrl).then(() => {
-            const txt = document.getElementById('copyQrisUrlText');
-            if (txt) {
-                const old = txt.textContent;
-                txt.textContent = 'URL Tersalin! ✓';
-                setTimeout(() => txt.textContent = old, 2000);
-            }
-        });
-    };
 
     window.closeQrisModal = function() {
         stopQrisPolling();
