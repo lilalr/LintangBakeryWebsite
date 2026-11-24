@@ -44,23 +44,23 @@ class ReportAndTransactionEnhancementsTest extends TestCase
 
         $content = $response->getContent();
 
-        // Urutan: Dashboard, Kasir, Pesanan, Laporan, Pelanggan
+        // Urutan: Dashboard, Kasir, Pesanan, Pelanggan, Laporan
         $posDashboard = strpos($content, '<span>Dashboard</span>');
         $posKasir = strpos($content, '<span>Kasir</span>');
         $posPesanan = strpos($content, '<span>Pesanan</span>');
-        $posLaporan = strpos($content, '<span>Laporan</span>');
         $posPelanggan = strpos($content, '<span>Pelanggan</span>');
+        $posLaporan = strpos($content, '<span>Laporan</span>');
 
         $this->assertNotFalse($posDashboard);
         $this->assertNotFalse($posKasir);
         $this->assertNotFalse($posPesanan);
-        $this->assertNotFalse($posLaporan);
         $this->assertNotFalse($posPelanggan);
+        $this->assertNotFalse($posLaporan);
 
         $this->assertTrue($posDashboard < $posKasir);
         $this->assertTrue($posKasir < $posPesanan);
-        $this->assertTrue($posPesanan < $posLaporan);
-        $this->assertTrue($posLaporan < $posPelanggan);
+        $this->assertTrue($posPesanan < $posPelanggan);
+        $this->assertTrue($posPelanggan < $posLaporan);
     }
 
     public function test_kasir_menu_does_not_have_riwayat_tab_and_focuses_on_pos(): void

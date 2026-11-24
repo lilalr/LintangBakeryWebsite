@@ -239,11 +239,6 @@
                     <button type="button" class="chart-pill active" id="btnGroupDaily" onclick="setChartGrouping('daily')">Per Hari</button>
                     <button type="button" class="chart-pill" id="btnGroupMonthly" onclick="setChartGrouping('monthly')">Per Bulan</button>
                 </div>
-                {{-- Toggle Visualisasi: Batang Diskrit (Default) / Garis --}}
-                <div class="chart-pill-group" title="Pilih tipe grafik">
-                    <button type="button" class="chart-pill active" id="btnTypeBar" onclick="setChartType('bar')">Batang</button>
-                    <button type="button" class="chart-pill" id="btnTypeLine" onclick="setChartType('line')">Garis</button>
-                </div>
             </div>
         </div>
         <div class="chart-container">
