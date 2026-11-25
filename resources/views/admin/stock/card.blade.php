@@ -14,7 +14,7 @@
         <button class="button button-small" type="submit">Tampilkan</button>
         @if ($start || $end)<a class="text-link" href="{{ route('admin.stock.card', ['product_id' => $productId]) }}">Reset tanggal</a>@endif
         <span class="spacer"></span>
-        <a class="button button-small button-light" href="{{ route('admin.stock.card.export', array_filter(['product_id' => $productId, 'start' => $start, 'end' => $end])) }}">Ekspor Excel (CSV)</a>
+        <a class="button button-small button-light" href="{{ route('admin.stock.card.export', array_filter(['product_id' => $productId, 'start' => $start, 'end' => $end])) }}">Ekspor Excel</a>
         <button type="button" class="button button-small button-light" onclick="window.print()">Cetak</button>
     </form>
     <div class="panel-heading"><div><h2>{{ $products->firstWhere('id', $productId)?->name }}</h2><p>Periode: {{ $start ? \Illuminate\Support\Carbon::parse($start)->format('d/m/Y') : 'awal' }} sampai {{ $end ? \Illuminate\Support\Carbon::parse($end)->format('d/m/Y') : 'sekarang' }}</p></div></div>

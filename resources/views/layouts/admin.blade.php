@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/app.css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .flatpickr-calendar { z-index: 9999 !important; }
+        .flatpickr-input[readonly] { cursor: pointer; background: inherit; box-shadow: none !important; }
+        input.flatpickr-input.active, .flatpickr-input[readonly]:focus { outline: none; box-shadow: none !important; }
+    </style>
 </head>
 <body class="admin-body">
     <aside class="admin-sidebar">
@@ -70,4 +76,15 @@
         </main>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+<script>
+    flatpickr('input[type=date]', {
+        locale: 'id',
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'j F Y',
+        allowInput: true,
+    });
+</script>
 </html>

@@ -63,7 +63,7 @@ class StockController extends Controller
         ]);
     }
 
-    /** Ekspor kartu stok ke CSV (dibuka di Excel) dengan filter yang sama seperti halaman Kartu Stok. */
+    /** Ekspor kartu stok ke Excel (.xls) dengan filter yang sama seperti halaman Kartu Stok. */
     public function exportCard(Request $request): StreamedResponse
     {
         $filters = $this->cardFilters($request);
@@ -73,29 +73,35 @@ class StockController extends Controller
         abort_unless($product, 404);
 
         $rows = $this->cardQuery($product->id, $filters)->get();
-        $filename = 'kartu-stok-'.str($product->name)->slug().'-'.now()->format('Ymd').'.csv';
+        $filename = 'kartu-stok-'.str($product->name)->slug().'-'.now()->format('Ymd').'.xls';
 
         return response()->streamDownload(function () use ($rows, $product): void {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF"); // BOM supaya Excel membaca UTF-8
-            $write = fn (array $row) => fputcsv($out, $row, ';', '"', '');
+            $headers = ['Tanggal', 'Produk', 'Jenis', 'Jumlah', 'Alasan', 'Catatan', 'Referensi', 'Admin', 'Saldo'];
 
-            $write(['Tanggal', 'Produk', 'Jenis', 'Jumlah', 'Alasan', 'Catatan', 'Referensi', 'Admin', 'Saldo']);
-            foreach ($rows as $movement) {
-                $write([
-                    $movement->date->format('d/m/Y'),
-                    $this->csvSafe($product->name),
-                    $movement->type,
-                    ($movement->type === 'Masuk' ? '+' : '-').$movement->quantity,
-                    $this->csvSafe($movement->reason),
-                    $this->csvSafe((string) $movement->note),
-                    $this->csvSafe((string) $movement->reference),
-                    $this->csvSafe($movement->admin_name),
-                    $movement->balance,
-                ]);
+            echo "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"></head><body>\n";
+            echo "<table border=\"1\">\n<thead><tr>";
+            foreach ($headers as $h) {
+                echo '<th>'.htmlspecialchars($h).'</th>';
             }
-            fclose($out);
-        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+            echo "</tr></thead>\n<tbody>\n";
+
+            foreach ($rows as $movement) {
+                $qty = ($movement->type === 'Masuk' ? '+' : '-').$movement->quantity;
+                echo '<tr>';
+                echo '<td>'.htmlspecialchars($movement->date->format('d/m/Y')).'</td>';
+                echo '<td>'.htmlspecialchars($product->name).'</td>';
+                echo '<td>'.htmlspecialchars($movement->type).'</td>';
+                echo '<td>'.htmlspecialchars($qty).'</td>';
+                echo '<td>'.htmlspecialchars($movement->reason).'</td>';
+                echo '<td>'.htmlspecialchars((string) $movement->note).'</td>';
+                echo '<td>'.htmlspecialchars((string) $movement->reference).'</td>';
+                echo '<td>'.htmlspecialchars($movement->admin_name).'</td>';
+                echo '<td>'.htmlspecialchars((string) $movement->balance).'</td>';
+                echo "</tr>\n";
+            }
+
+            echo "</tbody>\n</table>\n</body></html>";
+        }, $filename, ['Content-Type' => 'application/vnd.ms-excel']);
     }
 
     /** Membuang batch yang sudah kedaluwarsa: stok berkurang dan tercatat sebagai kerugian. */
@@ -120,7 +126,20 @@ class StockController extends Controller
 
     public function opnameForm(): View
     {
-        return view('admin.stock.opname', ['products' => $this->offlineProducts()->get()]);
+        $rekapKedaluwarsa = StockMovement::query()
+            ->where('type', 'Keluar')
+            ->where('reason', 'Kedaluwarsa')
+            ->selectRaw("strftime('%Y', date) as tahun, strftime('%m', date) as bulan, product_name, SUM(quantity) as total_quantity, COUNT(*) as total_kejadian")
+            ->groupBy('tahun', 'bulan', 'product_name')
+            ->orderByDesc('tahun')
+            ->orderByDesc('bulan')
+            ->orderBy('product_name')
+            ->get();
+
+        return view('admin.stock.opname', [
+            'products' => $this->offlineProducts()->get(),
+            'rekapKedaluwarsa' => $rekapKedaluwarsa,
+        ]);
     }
 
     /** Stok opname: selisih stok fisik dan sistem dicatat sebagai mutasi baru (Opname). */
@@ -131,6 +150,10 @@ class StockController extends Controller
             'physical' => ['required', 'array'],
             'physical.*' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'note' => ['nullable', 'string', 'max:500'],
+            'reason' => ['nullable', 'array'],
+            'reason.*' => ['nullable', 'string', 'max:100'],
+            'note_product' => ['nullable', 'array'],
+            'note_product.*' => ['nullable', 'string', 'max:500'],
         ], [
             'date.required' => 'Tanggal opname wajib diisi.',
             'physical.*.integer' => 'Stok fisik harus berupa angka bulat.',
@@ -145,14 +168,28 @@ class StockController extends Controller
 
         $products = $this->offlineProducts()->get()->keyBy('id');
         $reference = 'OPNAME-'.Carbon::parse($data['date'])->format('Ymd');
-        $note = trim('Stok opname. '.($data['note'] ?? ''));
+        $globalNote = trim($data['note'] ?? '');
         $adjusted = 0;
 
-        DB::transaction(function () use ($counted, $products, $stock, $data, $reference, $note, &$adjusted): void {
+        DB::transaction(function () use ($counted, $products, $stock, $data, $reference, $globalNote, &$adjusted): void {
             foreach ($counted as $productId => $physical) {
                 $product = $products->get((int) $productId);
+                if (! $product) {
+                    continue;
+                }
 
-                if ($product && $stock->adjustTo($product, (int) $physical, ['date' => $data['date'], 'reference' => $reference, 'note' => $note], 'Opname')) {
+                $productReason = $data['reason'][$productId] ?? null;
+                $productNote = $data['note_product'][$productId] ?? null;
+
+                $noteParts = array_filter([
+                    'Stok opname',
+                    $productReason ? 'Alasan: '.$productReason : null,
+                    $productNote,
+                    $globalNote,
+                ]);
+                $note = implode('. ', $noteParts);
+
+                if ($stock->adjustTo($product, (int) $physical, ['date' => $data['date'], 'reference' => $reference, 'note' => $note], 'Opname')) {
                     $adjusted++;
                 }
             }
