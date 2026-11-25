@@ -36,7 +36,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
-        $product->update($this->validated($request));
+        $product->update($this->validated($request, $product));
 
         return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil diperbarui.');
     }
@@ -48,7 +48,7 @@ class ProductController extends Controller
         return back()->with('success', 'Produk berhasil dihapus.');
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, ?Product $product = null): array
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
@@ -58,13 +58,15 @@ class ProductController extends Controller
             'cost_price' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'image' => ['nullable', 'url', 'max:1000'],
             'sales_channel' => ['nullable', 'in:online,offline,both'],
-            'stock' => ['required', 'integer', 'min:0'],
+            'stock' => ['nullable', 'integer', 'min:0'],
             'min_stock' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $data['category'] = $data['category'] ?? 'Kue Kering';
         $data['sales_channel'] = $data['sales_channel'] ?? 'both';
         $data['cost_price'] = $data['cost_price'] ?? 0;
+        $data['stock'] = $data['stock'] ?? ($product?->stock ?? 0);
+        $data['min_stock'] = $data['min_stock'] ?? ($product?->min_stock ?? 10);
 
         return $data;
     }

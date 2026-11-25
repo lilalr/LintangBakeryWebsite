@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\OfflineTransaction;
 use App\Models\Product;
+use App\Models\StockMutation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,16 +15,15 @@ class OfflineTransactionController extends Controller
 {
     public function index(): View
     {
-        $transactions = OfflineTransaction::with('items')->latest()->paginate(12);
         $products = Product::whereIn('sales_channel', ['offline', 'both'])->orderBy('name')->get();
 
-        return view('admin.transactions.index', compact('transactions', 'products'));
+        return view('admin.transactions.index', compact('products'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'buyer_name' => ['required', 'string', 'max:160'],
+            'buyer_name' => ['nullable', 'string', 'max:160'],
             'date' => ['required', 'date'],
             'payment_method' => ['required', 'in:cash,qris,qris-tf,edc'],
             'notes' => ['nullable', 'string', 'max:1000'],
@@ -67,8 +67,10 @@ class OfflineTransactionController extends Controller
                 ];
             }
 
+            $buyerName = ! empty(trim($validated['buyer_name'] ?? '')) ? trim($validated['buyer_name']) : '-';
+
             $transaction = OfflineTransaction::create([
-                'buyer_name' => $validated['buyer_name'],
+                'buyer_name' => $buyerName,
                 'date' => $validated['date'],
                 'total' => $total,
                 'total_hpp' => $totalHpp,
@@ -91,7 +93,7 @@ class OfflineTransactionController extends Controller
 
                 $product->decrement('stock', $row['quantity']);
 
-                \App\Models\StockMutation::create([
+                StockMutation::create([
                     'product_id' => $product->id,
                     'user_id' => auth()->id(),
                     'admin_name' => auth()->user()?->name ?? 'Kasir',
@@ -99,9 +101,9 @@ class OfflineTransactionController extends Controller
                     'quantity' => $row['quantity'],
                     'balance' => $product->fresh()->stock,
                     'reason' => 'Penjualan offline',
-                    'reference_number' => 'TRX-'.$transaction->id,
+                    'reference_number' => 'TRX-'.str_pad($transaction->id, 4, '0', STR_PAD_LEFT),
                     'mutation_date' => $validated['date'],
-                    'notes' => 'Pembeli: '.$validated['buyer_name'].(! empty($validated['notes']) ? ' ('.$validated['notes'].')' : ''),
+                    'notes' => ($buyerName !== '-' ? 'Pembeli: '.$buyerName.' ' : '').(! empty($validated['notes']) ? '('.$validated['notes'].')' : ''),
                 ]);
             }
 
@@ -112,9 +114,9 @@ class OfflineTransactionController extends Controller
             ->with('success', 'Transaksi kasir berhasil disimpan.')
             ->with('trx_success', [
                 'id' => $transaction->id,
-                'code' => 'TRX-'.$transaction->id,
+                'code' => 'TRX-'.str_pad($transaction->id, 4, '0', STR_PAD_LEFT),
                 'total' => $transaction->total,
-                'buyer' => $validated['buyer_name'],
+                'buyer' => $transaction->buyer_name,
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? '',
             ]);
@@ -135,7 +137,7 @@ class OfflineTransactionController extends Controller
                     $product = Product::find($item->product_id);
                     if ($product) {
                         $product->increment('stock', $item->quantity);
-                        \App\Models\StockMutation::create([
+                        StockMutation::create([
                             'product_id' => $product->id,
                             'user_id' => auth()->id(),
                             'admin_name' => auth()->user()?->name ?? 'Admin',
@@ -143,9 +145,9 @@ class OfflineTransactionController extends Controller
                             'quantity' => $item->quantity,
                             'balance' => $product->fresh()->stock,
                             'reason' => 'Pembatalan (Void) kasir',
-                            'reference_number' => 'VOID-TRX-'.$transaction->id,
+                            'reference_number' => 'VOID-TRX-'.str_pad($transaction->id, 4, '0', STR_PAD_LEFT),
                             'mutation_date' => now()->toDateString(),
-                            'notes' => 'Pembatalan transaksi #'.$transaction->id.' ('.$transaction->buyer_name.')',
+                            'notes' => 'Pembatalan transaksi #'.$transaction->id.($transaction->buyer_name && $transaction->buyer_name !== '-' ? ' ('.$transaction->buyer_name.')' : ''),
                         ]);
                     }
                 }

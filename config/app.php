@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Admin Number
+    |--------------------------------------------------------------------------
+    | Nomor WhatsApp admin toko (format: 628xxxxxxxxxx).
+    | Dipakai untuk link wa.me di halaman pesanan dan halaman kontak.
+    */
+    'whatsapp_admin' => env('WHATSAPP_ADMIN_NUMBER', '6281234567890'),
+
 ];

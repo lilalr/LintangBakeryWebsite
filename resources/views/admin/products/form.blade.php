@@ -45,17 +45,8 @@
             <input type="url" name="image" value="{{ old('image', $product->image) }}" placeholder="https://images.unsplash.com/...">
         </label>
 
-        <div class="form-row">
-            <label>
-                Stok saat ini (bal)
-                <input type="number" name="stock" min="0" value="{{ old('stock', $product->stock ?? 0) }}" required>
-            </label>
-            <label>
-                Batas stok minimum (bal)
-                <input type="number" name="min_stock" min="0" value="{{ old('min_stock', $product->min_stock ?? 10) }}" placeholder="Contoh: 10">
-                <small class="muted">Status "Menipis" akan aktif jika stok &le; angka ini</small>
-            </label>
-        </div>
+        <input type="hidden" name="stock" value="{{ old('stock', $product->stock ?? 0) }}">
+        <input type="hidden" name="min_stock" value="{{ old('min_stock', $product->min_stock ?? 10) }}">
 
         <button class="button" type="submit">{{ $product->exists ? 'Simpan perubahan' : 'Tambah produk' }}</button>
     </form>

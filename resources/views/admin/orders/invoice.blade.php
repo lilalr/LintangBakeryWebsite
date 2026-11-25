@@ -181,7 +181,7 @@
 <body>
 
 <div class="action-bar">
-    <button class="btn-act" onclick="window.print()">🖨️ Cetak Faktur</button>
+    <button class="btn-act" onclick="window.print()">Cetak Faktur</button>
     <button class="btn-act btn-close" onclick="window.close()">Tutup</button>
 </div>
 

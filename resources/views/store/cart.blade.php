@@ -137,9 +137,23 @@
                                 <input type="hidden" name="quantity" value="{{ $row['quantity'] > 10 ? $row['quantity'] - 10 : max(1, $row['quantity'] - 1) }}">
                                 <button class="quantity-button" type="submit" aria-label="Kurangi jumlah" @disabled($row['quantity'] <= 1)>−</button>
                             </form>
-                            <span class="quantity-value" aria-live="polite" style="color: {{ $isRowUnder50 ? '#b45309' : 'inherit' }};">
-                                {{ $row['quantity'] }}
-                            </span>
+
+                            {{-- Input manual: klik angka → bisa ketik langsung --}}
+                            <form method="post" action="{{ route('cart.update', $row['product']) }}" class="qty-manual-form" style="display:inline; margin:0;">
+                                @csrf
+                                @method('PATCH')
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    value="{{ $row['quantity'] }}"
+                                    min="1"
+                                    max="10000"
+                                    class="qty-manual-input {{ $isRowUnder50 ? 'qty-warn' : '' }}"
+                                    aria-label="Jumlah {{ $row['product']->name }}"
+                                    data-price="{{ $row['product']->price_per_bal }}"
+                                >
+                            </form>
+
                             <form method="post" action="{{ route('cart.update', $row['product']) }}">
                                 @csrf
                                 @method('PATCH')
@@ -148,7 +162,7 @@
                             </form>
                         </div>
                     </td>
-                    <td><strong>Rp {{ number_format($row['subtotal'], 0, ',', '.') }}</strong></td>
+                    <td><strong data-subtotal>Rp {{ number_format($row['subtotal'], 0, ',', '.') }}</strong></td>
                     <td>
                         <form method="post" action="{{ route('cart.destroy', $row['product']) }}">
                             @csrf
@@ -164,8 +178,8 @@
 
     <div class="cart-summary">
         <div>
-            <span>Total produk ({{ $totalBal }} bal)</span>
-            <strong>Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong>
+            <span id="cart-total-label">Total produk ({{ $totalBal }} bal)</span>
+            <strong id="cart-total-amount">Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong>
         </div>
         <p style="margin: 6px 0 12px; font-size: 11px; color: var(--muted);">Ongkos kirim (Rp 10.000 × bal) & opsi DP/lunas dihitung saat checkout.</p>
         

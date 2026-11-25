@@ -38,4 +38,28 @@ class Product extends Model
     {
         return $this->hasMany(StockMutation::class);
     }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(StockBatch::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /** Status stok: Aman / Menipis / Habis */
+    public function stockStatus(): string
+    {
+        if ($this->stock <= 0) {
+            return 'Habis';
+        }
+
+        if ($this->stock <= $this->min_stock) {
+            return 'Menipis';
+        }
+
+        return 'Aman';
+    }
 }

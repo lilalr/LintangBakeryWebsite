@@ -161,7 +161,7 @@
 <body>
 
 <div class="action-bar">
-    <button class="btn-act" onclick="window.print()">🖨️ Cetak Surat Jalan</button>
+    <button class="btn-act" onclick="window.print()">Cetak Surat Jalan</button>
     <button class="btn-act btn-close" onclick="window.close()">Tutup</button>
 </div>
 

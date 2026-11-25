@@ -8,7 +8,7 @@
     <div>
         <span class="eyebrow">KATALOG TOKO</span>
         <h1>Manajemen produk</h1>
-        <p>Katalog master produk, harga jual, dan ketersediaan stok.</p>
+        <p>Katalog master produk dan harga jual.</p>
     </div>
     <a class="button" href="{{ route('admin.produk.create') }}" style="display: inline-flex; align-items: center; gap: 6px;">
         <svg style="width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.2;" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
@@ -21,10 +21,9 @@
         <table class="products-table">
             <thead>
                 <tr>
-                    <th style="width: 45%;">Produk</th>
+                    <th style="width: 55%;">Produk</th>
                     <th style="width: 25%;">Harga Jual / bal</th>
-                    <th style="width: 15%;">Stok</th>
-                    <th style="width: 15%;">Aksi</th>
+                    <th style="width: 20%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,9 +42,6 @@
                         <strong style="color: var(--brown); font-size: 14px;">Rp {{ number_format($product->price_per_bal, 0, ',', '.') }}</strong>
                     </td>
                     <td>
-                        <strong class="{{ $product->stock <= $product->min_stock ? 'text-warning' : '' }}">{{ $product->stock }} bal</strong>
-                    </td>
-                    <td>
                         <div class="action-row">
                             <a class="button button-small button-light" href="{{ route('admin.produk.edit', $product) }}">Edit</a>
                             <form method="post" action="{{ route('admin.produk.destroy', $product) }}" onsubmit="return confirm('Hapus produk ini?')">
@@ -58,7 +54,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="table-empty">Belum ada produk. Tambahkan produk pertama.</td>
+                    <td colspan="3" class="table-empty">Belum ada produk. Tambahkan produk pertama.</td>
                 </tr>
             @endforelse
             </tbody>

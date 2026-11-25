@@ -44,21 +44,41 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('produk', AdminProductController::class)->except(['show'])->parameters(['produk' => 'product']);
+
+    // Stok Produk (FEFO, Batches, Receive, Issue, Opname, Card)
     Route::get('/stok', [StockController::class, 'index'])->name('stock.index');
-    Route::post('/stok/masuk', [StockController::class, 'storeInbound'])->name('stock.inbound');
-    Route::post('/stok/keluar', [StockController::class, 'storeOutbound'])->name('stock.outbound');
+    Route::get('/stok/kartu', [StockController::class, 'card'])->name('stock.card');
+    Route::get('/stok/kartu/ekspor', [StockController::class, 'exportCard'])->name('stock.card.export');
+    Route::post('/stok/batch/{batch}/kedaluwarsa', [StockController::class, 'expireBatch'])->name('stock.batch.expire');
+    Route::get('/stok/opname', [StockController::class, 'opnameForm'])->name('stock.opname.form');
+    Route::post('/stok/opname', [StockController::class, 'opname'])->name('stock.opname');
+    Route::get('/stok/masuk', [StockController::class, 'receiveForm'])->name('stock.receive.form');
+    Route::post('/stok/masuk', [StockController::class, 'receive'])->name('stock.receive');
+    Route::get('/stok/keluar', [StockController::class, 'issueForm'])->name('stock.issue.form');
+    Route::post('/stok/keluar', [StockController::class, 'issue'])->name('stock.issue');
+    Route::post('/stok/inbound', [StockController::class, 'storeInbound'])->name('stock.inbound');
+    Route::post('/stok/outbound', [StockController::class, 'storeOutbound'])->name('stock.outbound');
     Route::patch('/stok/{product}', [StockController::class, 'update'])->name('stock.update');
+
+    // Pesanan
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/pesanan/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/pesanan/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
     Route::get('/pesanan/{order}/surat-jalan', [AdminOrderController::class, 'deliveryOrder'])->name('orders.delivery-order');
     Route::get('/pesanan/{order}/faktur', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
+
+    // Pelanggan
     Route::get('/pelanggan', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/pelanggan/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+    // Transaksi Offline (Kasir)
     Route::get('/transaksi-offline', [OfflineTransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transaksi-offline', [OfflineTransactionController::class, 'store'])->name('transactions.store');
     Route::get('/transaksi-offline/{transaction}/struk', [OfflineTransactionController::class, 'receipt'])->name('transactions.receipt');
     Route::delete('/transaksi-offline/{transaction}', [OfflineTransactionController::class, 'destroy'])->name('transactions.destroy');
+    Route::post('/transaksi-offline/{transaction}/void', [OfflineTransactionController::class, 'destroy'])->name('transactions.void');
+
+    // Laporan Penjualan
     Route::get('/laporan/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
 });

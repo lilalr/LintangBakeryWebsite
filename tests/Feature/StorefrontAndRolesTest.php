@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\OfflineTransaction;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -207,6 +208,14 @@ class StorefrontAndRolesTest extends TestCase
         $this->get(route('admin.customers.index'))
             ->assertOk()
             ->assertSee('Data Pelanggan')
+            ->assertDontSee('Total Pelanggan')
+            ->assertDontSee('Pelanggan Aktif')
+            ->assertDontSee('Total Belanja')
+            ->assertDontSee('Terdaftar ')
+            ->assertSee('Kontak')
+            ->assertDontSee('Kontak & WhatsApp')
+            ->assertDontSee('WhatsApp')
+            ->assertSee('>No</th>', false)
             ->assertSee('Budi Santoso')
             ->assertSee('budi@example.com')
             ->assertSee('081299887766');
@@ -215,6 +224,7 @@ class StorefrontAndRolesTest extends TestCase
             ->assertOk()
             ->assertSee('Budi Santoso')
             ->assertSee('budi@example.com')
+            ->assertSee('Chat WhatsApp')
             ->assertSee('Jl. Malioboro No. 10, Yogyakarta');
     }
 
@@ -326,7 +336,7 @@ class StorefrontAndRolesTest extends TestCase
 
     public function test_buyer_can_upload_settlement_proof_for_dp_order(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
+        Storage::fake('public');
 
         $buyer = User::factory()->create(['role' => 'buyer']);
         $order = Order::create([
@@ -345,7 +355,7 @@ class StorefrontAndRolesTest extends TestCase
             'shipping_cost' => 1000000,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->image('bukti_pelunasan.jpg');
+        $file = UploadedFile::fake()->image('bukti_pelunasan.jpg');
 
         $this->actingAs($buyer)
             ->post(route('buyer.orders.settlement', $order), [
@@ -436,7 +446,7 @@ class StorefrontAndRolesTest extends TestCase
             'stock' => 100,
         ]);
 
-        $trx = \App\Models\OfflineTransaction::create([
+        $trx = OfflineTransaction::create([
             'buyer_name' => 'Bu Siti Toko Snack',
             'date' => now()->toDateString(),
             'total' => 170000,
