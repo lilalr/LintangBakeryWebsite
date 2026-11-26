@@ -26,9 +26,22 @@ class StockController extends Controller
     /** Ringkasan stok: status, stok minimum, kedaluwarsa terdekat, dan peringatan. */
     public function index(StockService $stock): View
     {
-        $products = $this->offlineProducts()
-            ->with(['batches' => fn ($query) => $query->where('quantity', '>', 0)->whereNotNull('expiry_date')->orderBy('expiry_date')])
-            ->get();
+        // Sinkronisasi batch kedaluwarsa dari mutasi masuk jika batch belum tercatat
+        $inboundMutations = StockMutation::where('type', 'in')->whereNotNull('expiry_date')->get();
+        foreach ($inboundMutations as $m) {
+            $exists = StockBatch::where('product_id', $m->product_id)
+                ->where('expiry_date', $m->expiry_date)
+                ->exists();
+            if (! $exists) {
+                StockBatch::create([
+                    'product_id' => $m->product_id,
+                    'quantity' => $m->quantity,
+                    'received_date' => $m->mutation_date ?? $m->created_at?->toDateString() ?? now()->toDateString(),
+                    'expiry_date' => $m->expiry_date,
+                ]);
+            }
+        }
+
         $alerts = $stock->alerts();
         $batches = StockBatch::with('product')
             ->where('quantity', '>', 0)
@@ -36,6 +49,22 @@ class StockController extends Controller
             ->whereHas('product', fn ($query) => $query->whereIn('sales_channel', ['offline', 'both']))
             ->orderBy('expiry_date')
             ->get();
+
+        $products = $this->offlineProducts()
+            ->with(['batches' => fn ($query) => $query->where('quantity', '>', 0)->whereNotNull('expiry_date')->orderBy('expiry_date')])
+            ->get()
+            ->sortBy(function ($product) {
+                $stockRank = match ($product->stockStatus()) {
+                    'Habis' => 0,
+                    'Menipis' => 1,
+                    default => 2,
+                };
+                $earliestBatch = $product->batches->first();
+                $expiryRank = ($earliestBatch && $earliestBatch->daysLeft() <= StockService::EXPIRY_ALERT_DAYS) ? 0 : 1;
+
+                return [$stockRank, $expiryRank, $product->name];
+            })
+            ->values();
 
         return view('admin.stock.index', [
             'batches' => $batches,

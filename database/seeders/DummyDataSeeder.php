@@ -7,6 +7,7 @@ use App\Models\OfflineTransactionItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\StockBatch;
 use App\Models\StockMutation;
 use App\Models\User;
 use Carbon\Carbon;
@@ -447,6 +448,7 @@ class DummyDataSeeder extends Seeder
 
         // 5. MUTASI STOK (MANAJEMEN STOK)
         StockMutation::query()->delete();
+        StockBatch::query()->delete();
 
         $mutations = [
             [
@@ -547,6 +549,15 @@ class DummyDataSeeder extends Seeder
                 'created_at' => Carbon::parse($m['date'].' 08:30:00'),
                 'updated_at' => Carbon::parse($m['date'].' 08:30:00'),
             ]);
+
+            if ($m['type'] === 'in' && ! empty($m['expiry'])) {
+                StockBatch::create([
+                    'product_id' => $p->id,
+                    'quantity' => $m['qty'],
+                    'received_date' => $m['date'],
+                    'expiry_date' => $m['expiry'],
+                ]);
+            }
         }
 
         // Set realistic current stocks

@@ -24,7 +24,21 @@
         <td><strong>{{ $product->stock }} bal</strong></td>
         <td>{{ $product->min_stock }} bal</td>
         <td><span class="status-pill {{ $statusClass }}">{{ $status }}</span></td>
-        <td>@if ($batch){{ $batch->expiry_date->format('d/m/Y') }}<small class="{{ $batch->daysLeft() <= \App\Services\StockService::EXPIRY_ALERT_DAYS ? 'text-warning' : '' }}">{{ $batch->daysLeft() < 0 ? 'sudah lewat' : 'H-'.$batch->daysLeft() }}</small>@else<span class="muted">—</span>@endif</td>
+        <td>
+            @if ($batch)
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>{{ $batch->expiry_date->format('d/m/Y') }}</span>
+                    @php
+                        $days = $batch->daysLeft();
+                        $badgeClass = $days < 0 ? 'status-out' : ($days <= \App\Services\StockService::EXPIRY_ALERT_DAYS ? 'status-low' : 'status-ok');
+                        $badgeText = $days < 0 ? 'Kedaluwarsa' : 'H-'.$days;
+                    @endphp
+                    <span class="status-pill {{ $badgeClass }}" style="font-size: 11px; padding: 2px 8px;">{{ $badgeText }}</span>
+                </div>
+            @else
+                <span class="muted">—</span>
+            @endif
+        </td>
     </tr>
 @empty<tr><td colspan="5" class="table-empty">Belum ada produk untuk penjualan offline. Ubah kanal produk di halaman Produk.</td></tr>@endforelse
 </tbody></table></div></section>
