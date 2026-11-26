@@ -30,7 +30,6 @@
             </label>
             <button class="button button-full" type="submit">Masuk</button>
         </form>
-        <div class="demo-box"><strong>Akun demo</strong><br>Admin: admin@lintangbakery.id / admin123<br>User: buyer@test.com / password</div>
         <p class="auth-switch">Belum punya akun? <a href="{{ route('register') }}">Daftar sebagai reseller</a></p>
     </div>
 </section>

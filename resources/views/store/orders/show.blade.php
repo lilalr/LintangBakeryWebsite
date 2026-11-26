@@ -231,22 +231,22 @@
                 <div style="margin-bottom:14px;">
                     <h2 style="margin:0; font-size:15px; font-weight:700; color:var(--brown-dark);">Tujuan Pengiriman</h2>
                 </div>
-                <div class="meta-list">
+                <div class="meta-list" style="display: flex; flex-direction: column; gap: 12px;">
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">Nama Penerima</span>
-                        <strong style="display:block; color:var(--brown-dark);">{{ $order->buyer }}</strong>
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Nama Penerima</strong>
+                        <span style="display:block; color:#4a3b31; font-size:13.5px; font-weight:400;">{{ $order->buyer }}</span>
                     </div>
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">No. Telepon / WhatsApp</span>
-                        <strong style="display:block; color:var(--brown-dark);">{{ $order->phone }}</strong>
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">No. Telepon / WhatsApp</strong>
+                        <span style="display:block; color:#4a3b31; font-size:13.5px; font-weight:400;">{{ $order->phone }}</span>
                     </div>
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">Alamat Lengkap</span>
-                        <p style="margin:2px 0 0; color:#4a3b31; font-size:13px; line-height:1.5;">{{ $order->address }}</p>
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Alamat Lengkap</strong>
+                        <p style="margin:0; color:#4a3b31; font-size:13px; line-height:1.5; font-weight:400;">{{ $order->address }}</p>
                     </div>
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">Kota & Provinsi</span>
-                        <strong style="display:block; color:var(--brown-dark);">{{ $order->city }}, {{ $order->province }}</strong>
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Kota & Provinsi</strong>
+                        <span style="display:block; color:#4a3b31; font-size:13.5px; font-weight:400;">{{ $order->city }}, {{ $order->province }}</span>
                     </div>
                 </div>
             </div>
@@ -255,24 +255,24 @@
                 <div style="margin-bottom:14px;">
                     <h2 style="margin:0; font-size:15px; font-weight:700; color:var(--brown-dark);">Rincian Pembayaran</h2>
                 </div>
-                <div class="meta-list">
+                <div class="meta-list" style="display: flex; flex-direction: column; gap: 12px;">
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">Tipe Pembayaran</span>
-                        <strong style="display:block; color:var(--brown-dark);">
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Tipe Pembayaran</strong>
+                        <span style="display:block; color:#4a3b31; font-size:13.5px; font-weight:400;">
                             {{ $order->payment_type === 'dp' ? 'Uang Muka 65% (DP)' : 'Pembayaran Lunas (100%)' }}
-                        </strong>
+                        </span>
                     </div>
                     <div>
-                        <span class="muted" style="font-size:11px; text-transform:uppercase;">Metode</span>
-                        <strong style="display:block; color:var(--brown-dark);">
-                            {{ strtoupper($order->payment_method ?: 'Transfer Bank') }}
-                        </strong>
+                        <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Metode Pembayaran</strong>
+                        <span style="display:block; color:#4a3b31; font-size:13.5px; font-weight:400;">
+                            {{ $order->payment_method === 'bank_transfer' ? 'Transfer Bank' : ($order->payment_method === 'qris' ? 'QRIS' : ucwords(str_replace('_', ' ', $order->payment_method ?: 'Transfer Bank'))) }}
+                        </span>
                     </div>
                     @if ($order->payment_proof)
                         <div>
-                            <span class="muted" style="font-size:11px; text-transform:uppercase;">Bukti Pembayaran Awal</span>
-                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($order->payment_proof) }}" target="_blank" rel="noopener noreferrer" class="text-link" style="display:block; margin-top:3px; font-weight:600;">
-                                📄 Buka Bukti Transfer DP/Lunas →
+                            <strong style="display:block; font-size:12.5px; font-weight:700; color:var(--brown-dark); margin-bottom:2px;">Bukti Pembayaran Awal</strong>
+                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($order->payment_proof) }}" target="_blank" rel="noopener noreferrer" class="text-link" style="display:inline-block; font-weight:500; font-size:13px;">
+                                Buka Bukti Transfer DP/Lunas →
                             </a>
                         </div>
                     @endif
