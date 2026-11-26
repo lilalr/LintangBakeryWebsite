@@ -11,6 +11,24 @@
     <article class="stat-card"><span>Perlu diproses</span><strong>{{ $stats['pending'] }}</strong><small>menunggu konfirmasi</small></article>
     <article class="stat-card"><span>Total penjualan</span><strong>Rp {{ number_format($stats['sales'], 0, ',', '.') }}</strong><small>pesanan selesai + offline</small></article>
 </div>
+
+@if ($stats['pending'] > 0)
+    <div class="alert alert-info" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; border-radius:10px; padding:12px 16px; margin:16px 0 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; box-shadow:0 2px 8px rgba(37,99,235,0.06);">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:#dbeafe; color:#2563eb; flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </span>
+            <div style="font-size:13px; line-height:1.5;">
+                <strong style="color:#1d4ed8; font-weight:750;">Pesanan Masuk Baru:</strong>
+                Terdapat <strong>{{ $stats['pending'] }} pesanan</strong> online menunggu konfirmasi admin.
+            </div>
+        </div>
+        <a href="{{ route('admin.orders.index') }}" class="button button-small" style="background:#2563eb; border-color:#2563eb; color:white; font-size:12px; font-weight:650; padding:7px 16px; border-radius:7px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+            <span>Periksa Pesanan</span>
+            <span>&rarr;</span>
+        </a>
+    </div>
+@endif
 @if ($lowStock->isNotEmpty())
     <div class="alert alert-warning">
         <strong>Peringatan Stok Menipis:</strong>

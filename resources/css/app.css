@@ -1732,6 +1732,39 @@ td small {
     transform: scale(1.05);
 }
 
+.sidebar-order-badge {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: #e11d48;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(225, 29, 72, 0.35);
+    animation: order-badge-pulse 2.4s infinite ease-in-out;
+}
+
+.sidebar-order-badge .bell-icon {
+    display: block;
+    width: 11px;
+    height: 11px;
+}
+
+@keyframes order-badge-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 6px rgba(225, 29, 72, 0.35);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 2px 10px rgba(225, 29, 72, 0.55);
+    }
+}
+
 .sidebar-bottom {
     margin-top: auto;
     display: grid;

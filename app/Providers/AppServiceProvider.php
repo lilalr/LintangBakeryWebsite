@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -52,6 +53,17 @@ class AppServiceProvider extends ServiceProvider
                 'cartDrawerTotal' => $cartDrawerTotal,
                 'cartDrawerCount' => array_sum($rawCart),
             ]);
+        });
+
+        View::composer('layouts.admin', function ($view) {
+            $pendingOrdersCount = 0;
+            try {
+                $pendingOrdersCount = Order::where('status', 'Menunggu Konfirmasi')->count();
+            } catch (\Throwable) {
+                $pendingOrdersCount = 0;
+            }
+
+            $view->with('pendingOrdersCount', $pendingOrdersCount);
         });
     }
 }
