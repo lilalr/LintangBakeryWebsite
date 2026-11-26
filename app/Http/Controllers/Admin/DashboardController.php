@@ -21,11 +21,28 @@ class DashboardController extends Controller
         $offlineSalesTotal = (float) OfflineTransaction::sum('total');
         $totalSales = $onlineSalesTotal + $offlineSalesTotal;
 
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $monthOnlineSales = (float) Order::whereIn('status', ['Sudah Sampai', 'Selesai/Lunas'])
+            ->where('created_at', '>=', $startOfMonth)
+            ->sum('total');
+        $monthOfflineSales = (float) OfflineTransaction::where('date', '>=', $startOfMonth->toDateString())
+            ->sum('total');
+        $monthSalesTotal = $monthOnlineSales + $monthOfflineSales;
+
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+        $monthLabel = ($indonesianMonths[(int) Carbon::now()->format('n')] ?? Carbon::now()->format('F')).' '.Carbon::now()->format('Y');
+
         $stats = [
             'products' => Product::count(),
             'orders' => Order::count(),
             'pending' => Order::where('status', 'Menunggu Konfirmasi')->count(),
             'sales' => $totalSales,
+            'month_sales' => $monthSalesTotal,
+            'month_label' => $monthLabel,
             'online_sales' => $onlineSalesTotal,
             'offline_sales' => $offlineSalesTotal,
             'online_pct' => $totalSales > 0 ? round(($onlineSalesTotal / $totalSales) * 100) : 0,

@@ -35,11 +35,14 @@
 
     <article class="stat-card">
         <div class="stat-card-top">
-            <span>Total Penjualan</span>
+            <span>Penjualan Bulan Ini</span>
+            <span style="font-size: 10px; font-weight: 700; color: #8c786c; background: #f5ede6; padding: 2px 7px; border-radius: 999px;">
+                {{ $stats['month_label'] }}
+            </span>
         </div>
-        <strong>Rp {{ number_format($stats['sales'], 0, ',', '.') }}</strong>
+        <strong>Rp {{ number_format($stats['month_sales'], 0, ',', '.') }}</strong>
         <div class="stat-card-bottom">
-            <small>omzet pesanan online &amp; kasir</small>
+            <small>omzet online &amp; kasir bulan ini</small>
         </div>
     </article>
 
@@ -49,7 +52,7 @@
         </div>
         <strong>{{ $stats['orders'] }}</strong>
         <div class="stat-card-bottom">
-            <small>keseluruhan pesanan online</small>
+            <small>total seluruh pesanan masuk</small>
         </div>
     </article>
 </div>
@@ -169,38 +172,87 @@
         </div>
     </section>
 
-    {{-- Panel Top Produk Terlaris --}}
+    {{-- Panel Top Produk Terlaris (Diagram Donut) --}}
     <section class="panel" style="margin-top: 0; margin-bottom: 0;">
         <div class="panel-heading" style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f0e6dd;">
             <div>
                 <h2 style="font-size: 15px; margin-bottom: 2px;">Top Produk Terlaris</h2>
-                <p style="font-size: 11.5px; color: var(--muted); margin: 0;">Produk paling banyak diminati</p>
+                <p style="font-size: 11.5px; color: var(--muted); margin: 0;">Proporsi penjualan produk terlaris</p>
             </div>
             <a class="text-link" href="{{ route('admin.produk.index') }}" style="font-size: 12px;">Katalog &rarr;</a>
         </div>
 
         @if ($topProducts->isNotEmpty())
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                @php $maxQty = $topProducts->max('qty') ?: 1; @endphp
-                @foreach ($topProducts as $tIndex => $tp)
-                    <div style="background: #faf6f1; border: 1px solid #f0e6dd; border-radius: 8px; padding: 8px 12px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; font-size: 10.5px; font-weight: 800; background: {{ $tIndex === 0 ? '#f59e0b; color: #fff;' : ($tIndex === 1 ? '#9ca3af; color: #fff;' : ($tIndex === 2 ? '#b45309; color: #fff;' : '#e8dfd8; color: #5a4b41;')) }}">
-                                    #{{ $tIndex + 1 }}
-                                </span>
-                                <strong style="font-size: 12.5px; color: var(--brown-dark);">{{ $tp['name'] }}</strong>
-                            </div>
-                            <span style="font-size: 12px; font-weight: 700; color: #8b4513;">{{ $tp['qty'] }} bal</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="flex: 1; height: 5px; background: #e8dfd8; border-radius: 999px; overflow: hidden;">
-                                <div style="width: {{ round(($tp['qty'] / $maxQty) * 100) }}%; height: 100%; background: #8b4513; border-radius: 999px;"></div>
-                            </div>
-                            <span style="font-size: 10.5px; color: var(--muted); white-space: nowrap;">Rp {{ number_format($tp['revenue'], 0, ',', '.') }}</span>
-                        </div>
+            @php
+                $topTotalQty = $topProducts->sum('qty') ?: 1;
+                $donutRadius = 52;
+                $donutCircumference = 2 * pi() * $donutRadius;
+                $donutColors = ['#d97706', '#8b4513', '#059669', '#6366f1', '#ec4899'];
+                $donutOffset = 0;
+            @endphp
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 4px 0 6px;">
+                {{-- Donut SVG --}}
+                <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0;">
+                    <svg viewBox="0 0 160 160" width="160" height="160" style="display: block; transform: rotate(-90deg);">
+                        {{-- Background Track --}}
+                        <circle
+                            cx="80"
+                            cy="80"
+                            r="{{ $donutRadius }}"
+                            fill="transparent"
+                            stroke="#f3ece6"
+                            stroke-width="22"
+                        />
+                        @foreach ($topProducts as $idx => $tp)
+                            @php
+                                $pct = ($tp['qty'] / $topTotalQty);
+                                $sliceLength = $pct * $donutCircumference;
+                                $color = $donutColors[$idx % count($donutColors)];
+                                $currentOffset = $donutOffset;
+                                $donutOffset += $sliceLength;
+                            @endphp
+                            <circle
+                                cx="80"
+                                cy="80"
+                                r="{{ $donutRadius }}"
+                                fill="transparent"
+                                stroke="{{ $color }}"
+                                stroke-width="22"
+                                stroke-dasharray="{{ sprintf('%.2f', max(0, $sliceLength - ($topProducts->count() > 1 ? 1.5 : 0))) }} {{ sprintf('%.2f', $donutCircumference) }}"
+                                stroke-dashoffset="{{ sprintf('%.2f', -$currentOffset) }}"
+                                stroke-linecap="butt"
+                            >
+                                <title>{{ $tp['name'] }}: {{ $tp['qty'] }} bal ({{ round($pct * 100) }}%)</title>
+                            </circle>
+                        @endforeach
+                    </svg>
+
+                    {{-- Donut Center Text --}}
+                    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
+                        <span style="font-size: 19px; font-weight: 800; color: #451a03; line-height: 1.1;">{{ $topTotalQty }}</span>
+                        <span style="font-size: 9px; font-weight: 700; color: #9c8e84; text-transform: uppercase; letter-spacing: 0.5px;">Bal Terjual</span>
                     </div>
-                @endforeach
+                </div>
+
+                {{-- Legend / Breakdown List --}}
+                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px;">
+                    @foreach ($topProducts as $idx => $tp)
+                        @php
+                            $pct = round(($tp['qty'] / $topTotalQty) * 100);
+                            $color = $donutColors[$idx % count($donutColors)];
+                        @endphp
+                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 5px 8px; border-radius: 6px; background: #faf6f1; border: 1px solid #f3ece6;">
+                            <div style="display: flex; align-items: center; gap: 7px; overflow: hidden; white-space: nowrap; max-width: 62%;">
+                                <span style="width: 9px; height: 9px; border-radius: 50%; background: {{ $color }}; flex-shrink: 0;"></span>
+                                <span style="font-weight: 650; color: var(--brown-dark); overflow: hidden; text-overflow: ellipsis;" title="{{ $tp['name'] }}">{{ $tp['name'] }}</span>
+                            </div>
+                            <div style="text-align: right; font-size: 11.5px; white-space: nowrap;">
+                                <strong style="color: #451a03;">{{ $tp['qty'] }} bal</strong>
+                                <span style="color: var(--muted); font-size: 10.5px; margin-left: 2px;">({{ $pct }}%)</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @else
             <div class="report-empty" style="padding: 28px 12px;">
