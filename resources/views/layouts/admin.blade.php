@@ -69,7 +69,6 @@
         </div>
     </aside>
     <div class="admin-main">
-        <header class="admin-topbar"><span>@yield('section', 'Dashboard')</span></header>
         <main class="admin-content">
             @include('partials.flash')
             @yield('content')
