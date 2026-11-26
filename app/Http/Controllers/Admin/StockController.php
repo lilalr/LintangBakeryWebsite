@@ -126,14 +126,24 @@ class StockController extends Controller
 
     public function opnameForm(): View
     {
+        $driver = DB::connection()->getDriverName();
+        $yearExpr = match ($driver) {
+            'pgsql' => 'CAST(EXTRACT(YEAR FROM date) AS INTEGER)',
+            'sqlite' => "CAST(strftime('%Y', date) AS INTEGER)",
+            default => 'YEAR(date)',
+        };
+        $monthExpr = match ($driver) {
+            'pgsql' => 'CAST(EXTRACT(MONTH FROM date) AS INTEGER)',
+            'sqlite' => "CAST(strftime('%m', date) AS INTEGER)",
+            default => 'MONTH(date)',
+        };
+
         $rekapKedaluwarsa = StockMovement::query()
             ->where('type', 'Keluar')
             ->where('reason', 'Kedaluwarsa')
-            ->selectRaw("strftime('%Y', date) as tahun, strftime('%m', date) as bulan, product_name, SUM(quantity) as total_quantity, COUNT(*) as total_kejadian")
-            ->groupBy('tahun', 'bulan', 'product_name')
-            ->orderByDesc('tahun')
-            ->orderByDesc('bulan')
-            ->orderBy('product_name')
+            ->selectRaw("{$yearExpr} as tahun, {$monthExpr} as bulan, product_name, SUM(quantity) as total_quantity, COUNT(*) as total_kejadian")
+            ->groupByRaw("{$yearExpr}, {$monthExpr}, product_name")
+            ->orderByRaw("{$yearExpr} DESC, {$monthExpr} DESC, product_name ASC")
             ->get();
 
         return view('admin.stock.opname', [

@@ -57,7 +57,7 @@
     @endphp
     @forelse ($rekapKedaluwarsa as $rekap)
         <tr>
-            <td>{{ $namaBulan[$rekap->bulan] }} {{ $rekap->tahun }}</td>
+            <td>{{ $namaBulan[(int) $rekap->bulan] ?? $rekap->bulan }} {{ $rekap->tahun }}</td>
             <td>{{ $rekap->product_name }}</td>
             <td><strong>{{ $rekap->total_quantity }} bal</strong></td>
             <td>{{ $rekap->total_kejadian }}×</td>

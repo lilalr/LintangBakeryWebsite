@@ -176,13 +176,17 @@ class StockExtrasTest extends TestCase
 
     public function test_opname_page_renders_products_with_system_stock(): void
     {
-        $this->product(77, 'Nastar Demo');
+        $product = $this->product(77, 'Nastar Demo');
+        app(StockService::class)->issue($product, 5, 'Kedaluwarsa', ['date' => '2026-10-15']);
 
         $this->actingAs($this->admin)->get(route('admin.stock.opname.form'))
             ->assertOk()
             ->assertSee('Stok opname')
             ->assertSee('Nastar Demo')
-            ->assertSee('77 bal');
+            ->assertSee('72 bal')
+            ->assertSee('Oktober 2026')
+            ->assertSee('5 bal')
+            ->assertSee('1×');
     }
 
     public function test_new_stock_routes_are_admin_only(): void
