@@ -4,7 +4,7 @@
 @section('section', 'Dashboard')
 
 @section('content')
-<div class="content-heading"><div><span class="eyebrow">RINGKASAN TOKO</span><h1>Dashboard</h1><p>Ringkasan operasional Lintang Bakery.</p></div><a class="button button-light" href="{{ route('store.home') }}">Lihat toko user ↗</a></div>
+<div class="content-heading"><div><span class="eyebrow">RINGKASAN TOKO</span><h1>Dashboard</h1><p>Ringkasan operasional Lintang Bakery.</p></div></div>
 <div class="stats-grid">
     <article class="stat-card"><span>Total produk</span><strong>{{ $stats['products'] }}</strong><small>produk terdaftar</small></article>
     <article class="stat-card"><span>Total pesanan</span><strong>{{ $stats['orders'] }}</strong><small>pesanan online</small></article>

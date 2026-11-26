@@ -83,6 +83,12 @@ button {
     font: 700 21px 'Plus Jakarta Sans', sans-serif;
 }
 
+.brand-mark svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
 .store-nav {
     display: flex;
     align-items: center;
@@ -3987,8 +3993,6 @@ td small {
     }
 }
 
-<<<<<<< HEAD
-
 /* ── Input jumlah manual (qty-manual-input) ──────────────────────────────── */
 /* Tampak persis seperti teks biasa, tapi bisa diklik dan diedit langsung     */
 .qty-manual-input {
@@ -4054,15 +4058,13 @@ td small {
     transform: scale(1.1);
 }
 
-=======
-
 /* Manajemen stok */
 .status-ok {
     color: #276745;
     background: #f1faf4;
 }
 
->>>>>>>origin/glg .status-low {
+.status-low {
     color: #805e20;
     background: #fff4d8;
 }
