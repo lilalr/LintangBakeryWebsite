@@ -1,6 +1,7 @@
 @extends('layouts.store')
 
 @section('title', 'Daftar · Lintang Bakery')
+@section('body_class', 'auth-page-register')
 
 @section('content')
 <section class="auth-wrap">
@@ -17,7 +18,7 @@
             <label>Nama lengkap<input name="name" value="{{ old('name') }}" required maxlength="120"></label>
             <label>Email<input type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autocapitalize="none" spellcheck="false" inputmode="email" oninput="this.value = this.value.toLowerCase()"></label>
             <label>No. telepon / WhatsApp<input type="tel" name="phone" value="{{ old('phone') }}" required maxlength="15" pattern="[0-9]{10,15}" inputmode="numeric" title="Nomor telepon 10-15 digit angka" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"></label>
-            <label>Alamat<textarea name="address" rows="3" required>{{ old('address') }}</textarea></label>
+            <label>Alamat<textarea name="address" rows="2" required>{{ old('address') }}</textarea></label>
             <label>Password
                 <span class="password-field" data-password-field>
                     <input type="password" name="password" required minlength="8" autocomplete="new-password">
