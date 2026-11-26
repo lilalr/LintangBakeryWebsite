@@ -1069,15 +1069,60 @@ body.auth-page-register .auth-switch {
 }
 
 body.auth-page-login .store-footer {
+    display: flex !important;
     flex-shrink: 0;
-    min-height: auto;
-    margin: 0;
-    padding: 12px max(calc((100% - 1160px) / 2), 20px);
-    border-top: 1px solid #f0e7dd;
-    background: #faf4eb;
-    display: flex;
-    justify-content: space-between;
+    margin-top: 0 !important;
+    min-height: 44px;
+    padding: 10px 24px;
     align-items: center;
+    justify-content: space-between;
+    background: #faf4eb;
+    border-top: 1px solid #f0e7dd;
+    font-size: 11.5px;
+    z-index: 10;
+}
+
+body.auth-page-login .auth-card {
+    padding: 18px 24px;
+}
+
+body.auth-page-login .auth-heading {
+    margin-bottom: 10px;
+}
+
+body.auth-page-login .auth-heading .brand-mark {
+    margin-bottom: 4px;
+    width: 38px;
+    height: 38px;
+}
+
+body.auth-page-login .auth-heading h1 {
+    font-size: 22px;
+}
+
+body.auth-page-login .stack-form {
+    gap: 8px;
+}
+
+body.auth-page-login .stack-form input {
+    padding: 7px 12px;
+    min-height: 35px;
+}
+
+body.auth-page-login .button-full {
+    padding: 8px 16px;
+    min-height: 38px;
+}
+
+body.auth-page-login .demo-box {
+    margin-top: 10px;
+    padding: 7px 12px;
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+
+body.auth-page-login .auth-switch {
+    margin-top: 10px;
     font-size: 11.5px;
 }
 
