@@ -13,21 +13,24 @@
                 <span class="password-field" data-password-field>
                     <input type="password" name="password" aria-label="Password" required autocomplete="current-password">
                     <button class="password-toggle" type="button" aria-label="Lihat password" aria-pressed="false" onclick="togglePassword(this)">
-                        <svg data-password-icon viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/>
-                        </svg>
-                        <svg data-password-icon viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
+                        <svg class="icon-eye-closed" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="m3 3 18 18M10.6 6.2A9.8 9.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-3.1 3.7M6.2 6.2C3.8 7.8 2.5 12 2.5 12s3.5 6 9.5 6c1 0 1.9-.2 2.7-.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg class="icon-eye-open" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
+                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/>
                         </svg>
                     </button>
                 </span>
             </label>
-            <label class="check-label"><input type="checkbox" name="remember" value="1"> Ingat saya</label>
+            <label class="check-label" style="display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; width: fit-content; margin: 4px 0 8px; cursor: pointer;">
+                <input type="checkbox" name="remember" value="1" style="width: 16px; height: 16px; min-height: 16px; margin: 0; cursor: pointer;">
+                <span>Ingat saya</span>
+            </label>
             <button class="button button-full" type="submit">Masuk</button>
         </form>
         <div class="demo-box"><strong>Akun demo</strong><br>Admin: admin@lintangbakery.id / admin123<br>User: buyer@test.com / password</div>
-        <p class="auth-switch">Belum punya akun? <a href="{{ route('register') }}">Daftar sebagai user</a></p>
+        <p class="auth-switch">Belum punya akun? <a href="{{ route('register') }}">Daftar sebagai reseller</a></p>
     </div>
 </section>
 
@@ -37,13 +40,23 @@ function togglePassword(btn) {
     if (!field) return;
     const input = field.querySelector('input');
     if (!input) return;
-    const isVisible = input.type === 'text';
-    input.type = isVisible ? 'password' : 'text';
-    btn.setAttribute('aria-pressed', String(!isVisible));
-    btn.setAttribute('aria-label', isVisible ? 'Lihat password' : 'Sembunyikan password');
-    btn.querySelectorAll('[data-password-icon]').forEach((icon, index) => {
-        icon.toggleAttribute('hidden', index === (isVisible ? 0 : 1));
-    });
+
+    const eyeClosed = field.querySelector('.icon-eye-closed');
+    const eyeOpen = field.querySelector('.icon-eye-open');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.setAttribute('aria-pressed', 'true');
+        btn.setAttribute('aria-label', 'Sembunyikan password');
+        if (eyeClosed) eyeClosed.setAttribute('hidden', '');
+        if (eyeOpen) eyeOpen.removeAttribute('hidden');
+    } else {
+        input.type = 'password';
+        btn.setAttribute('aria-pressed', 'false');
+        btn.setAttribute('aria-label', 'Lihat password');
+        if (eyeClosed) eyeClosed.removeAttribute('hidden');
+        if (eyeOpen) eyeOpen.setAttribute('hidden', '');
+    }
 }
 </script>
 @endsection

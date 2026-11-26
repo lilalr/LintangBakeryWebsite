@@ -54,14 +54,27 @@ document.querySelectorAll('[data-password-field]').forEach((field) => {
         return;
     }
 
+    if (toggle.hasAttribute('onclick')) {
+        return;
+    }
+
     toggle.addEventListener('click', () => {
-        const isVisible = input.type === 'text';
-        input.type = isVisible ? 'password' : 'text';
-        toggle.setAttribute('aria-pressed', String(!isVisible));
-        toggle.setAttribute('aria-label', isVisible ? 'Lihat password' : 'Sembunyikan password');
-        toggle.querySelectorAll('[data-password-icon]').forEach((icon, index) => {
-            icon.toggleAttribute('hidden', index === (isVisible ? 0 : 1));
-        });
+        const eyeClosed = field.querySelector('.icon-eye-closed');
+        const eyeOpen = field.querySelector('.icon-eye-open');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            toggle.setAttribute('aria-pressed', 'true');
+            toggle.setAttribute('aria-label', 'Sembunyikan password');
+            if (eyeClosed) eyeClosed.setAttribute('hidden', '');
+            if (eyeOpen) eyeOpen.removeAttribute('hidden');
+        } else {
+            input.type = 'password';
+            toggle.setAttribute('aria-pressed', 'false');
+            toggle.setAttribute('aria-label', 'Lihat password');
+            if (eyeClosed) eyeClosed.removeAttribute('hidden');
+            if (eyeOpen) eyeOpen.setAttribute('hidden', '');
+        }
     });
 });
 

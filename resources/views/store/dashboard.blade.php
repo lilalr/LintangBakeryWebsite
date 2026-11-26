@@ -10,7 +10,7 @@
         <form method="post" action="{{ route('buyer.profile.update') }}" class="stack-form">@csrf @method('PUT')
             <label>Nama lengkap<input name="name" value="{{ old('name', auth()->user()->name) }}" required></label>
             <label>Email<input type="email" value="{{ auth()->user()->email }}" disabled></label>
-            <label>No. telepon<input type="tel" name="phone" value="{{ old('phone', auth()->user()->phone) }}" required maxlength="15" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="Contoh: 081234567890" title="Nomor telepon 10-15 digit angka" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"></label>
+            <label>No. telepon<input type="tel" name="phone" value="{{ old('phone', auth()->user()->phone) }}" required maxlength="15" pattern="[0-9]{10,15}" inputmode="numeric" title="Nomor telepon 10-15 digit angka" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"></label>
             <label>Alamat<textarea name="address" rows="3" required>{{ old('address', auth()->user()->address) }}</textarea></label>
             <button class="button button-light" type="submit">Simpan profil</button>
         </form>
