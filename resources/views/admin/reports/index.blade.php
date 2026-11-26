@@ -4,6 +4,9 @@
 @section('section', 'Laporan')
 
 @section('content')
+@php
+    $activeTab = in_array(request('tab'), ['detail', 'sales', 'harian', 'produk']) ? request('tab') : 'detail';
+@endphp
 <div class="content-heading">
     <div>
         <span class="eyebrow">RINGKASAN & RINCIAN PENJUALAN</span>
@@ -19,6 +22,7 @@
 {{-- Filter Tanggal, Kanal, Metode Bayar, & Cari Nama Pelanggan --}}
 <section class="report-filter-bar">
     <form method="get" action="{{ route('admin.reports.index') }}" class="report-filter-inline" id="reportFilterForm" style="display:flex; flex-direction:column; gap:14px; width:100%;">
+        <input type="hidden" name="tab" id="filterActiveTab" value="{{ $activeTab }}">
         <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
             {{-- Dari Tanggal --}}
             <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; font-weight:700; color:var(--muted); min-width:140px; flex:1;">
@@ -63,7 +67,7 @@
             <div style="display:flex; gap:6px; align-items:center; padding-bottom:1px;">
                 <button class="button" type="submit" style="min-height:38px; padding:0 16px;">Terapkan Filter</button>
                 @if (request()->hasAny(['start_date', 'end_date', 'channel', 'payment_method', 'search_buyer']))
-                    <a href="{{ route('admin.reports.index') }}" class="button button-light" style="min-height:38px; padding:0 12px;" title="Reset Semua Filter">Reset</a>
+                    <a href="{{ route('admin.reports.index', array_filter(['tab' => $activeTab !== 'detail' ? $activeTab : null])) }}" class="button button-light" style="min-height:38px; padding:0 12px;" title="Reset Semua Filter">Reset</a>
                 @endif
             </div>
         </div>
@@ -81,16 +85,16 @@
     </form>
 </section>
 
-{{-- Tab Navigation (Riwayat Transaksi Aktif Pertama Kali Tanpa Angka) --}}
+{{-- Tab Navigation --}}
 <nav class="report-tabs" id="reportTabs">
-    <button class="report-tab active" data-tab="detail" type="button">Riwayat Transaksi</button>
-    <button class="report-tab" data-tab="sales" type="button">Ringkasan &amp; Grafik</button>
-    <button class="report-tab" data-tab="harian" type="button">Penjualan harian</button>
-    <button class="report-tab" data-tab="produk" type="button">Produk terlaris</button>
+    <button class="report-tab {{ $activeTab === 'detail' ? 'active' : '' }}" data-tab="detail" type="button">Riwayat Transaksi</button>
+    <button class="report-tab {{ $activeTab === 'sales' ? 'active' : '' }}" data-tab="sales" type="button">Ringkasan &amp; Grafik</button>
+    <button class="report-tab {{ $activeTab === 'harian' ? 'active' : '' }}" data-tab="harian" type="button">Penjualan harian</button>
+    <button class="report-tab {{ $activeTab === 'produk' ? 'active' : '' }}" data-tab="produk" type="button">Produk terlaris</button>
 </nav>
 
-{{-- TAB 1: RIWAYAT TRANSAKSI OFFLINE & ONLINE (Utama / Default) --}}
-<div class="report-tab-content active" id="tab-detail">
+{{-- TAB 1: RIWAYAT TRANSAKSI OFFLINE & ONLINE --}}
+<div class="report-tab-content {{ $activeTab === 'detail' ? 'active' : '' }}" id="tab-detail">
     <div class="five-stats">
         <article class="stat-card report-stat-card">
             <span class="stat-label">Total Transaksi</span>
@@ -216,7 +220,7 @@
 </div>
 
 {{-- TAB 2: RINGKASAN & GRAFIK (SALES) --}}
-<div class="report-tab-content" id="tab-sales">
+<div class="report-tab-content {{ $activeTab === 'sales' ? 'active' : '' }}" id="tab-sales">
     {{-- Ringkasan Penjualan Kotor --}}
     <section class="report-summary-card">
         <div class="summary-header">
@@ -388,7 +392,7 @@
 </div>
 
 {{-- TAB 3: PENJUALAN HARIAN (DENGAN PAGINATION PER 5 HARI) --}}
-<div class="report-tab-content" id="tab-harian">
+<div class="report-tab-content {{ $activeTab === 'harian' ? 'active' : '' }}" id="tab-harian">
     @if ($dailyBreakdown->isEmpty())
         <section class="report-data-card">
             <div class="report-empty">Belum ada penjualan pada periode ini.</div>
@@ -500,7 +504,7 @@
 </div>
 
 {{-- TAB 4: PRODUK TERLARIS --}}
-<div class="report-tab-content" id="tab-produk">
+<div class="report-tab-content {{ $activeTab === 'produk' ? 'active' : '' }}" id="tab-produk">
     <section class="report-data-card">
         <h3>Produk terlaris</h3>
         <p class="data-subtitle">Lima produk dengan penjualan terbanyak.</p>
@@ -978,29 +982,54 @@ function initTrxPagination() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
+    // Tab switching with URL & form synchronization
     const tabs = document.querySelectorAll('#reportTabs .report-tab');
     const contents = document.querySelectorAll('.report-tab-content');
+    const activeTabInput = document.getElementById('filterActiveTab');
+
+    function switchReportTab(targetTabName) {
+        tabs.forEach(function(t) {
+            t.classList.toggle('active', t.dataset.tab === targetTabName);
+        });
+        contents.forEach(function(c) {
+            c.classList.toggle('active', c.id === 'tab-' + targetTabName);
+        });
+
+        if (activeTabInput) {
+            activeTabInput.value = targetTabName;
+        }
+
+        // Update URL query parameter without page reload
+        try {
+            const url = new URL(window.location);
+            url.searchParams.set('tab', targetTabName);
+            window.history.replaceState({}, '', url);
+
+            const resetBtn = document.querySelector('a[title="Reset Semua Filter"]');
+            if (resetBtn) {
+                const resetUrl = new URL(resetBtn.href);
+                resetUrl.searchParams.set('tab', targetTabName);
+                resetBtn.href = resetUrl.toString();
+            }
+        } catch (_) {}
+
+        if (targetTabName === 'sales') {
+            setTimeout(renderSalesChart, 50);
+        }
+    }
 
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
-            tabs.forEach(function(t) { t.classList.remove('active'); });
-            contents.forEach(function(c) { c.classList.remove('active'); });
-
-            tab.classList.add('active');
-            const targetContent = document.getElementById('tab-' + tab.dataset.tab);
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
-
-            if (tab.dataset.tab === 'sales') {
-                setTimeout(renderSalesChart, 50);
-            }
+            switchReportTab(tab.dataset.tab);
         });
     });
 
     // Inisialisasi Grafik
-    renderSalesChart();
+    if (activeTabInput && activeTabInput.value === 'sales') {
+        setTimeout(renderSalesChart, 60);
+    } else {
+        renderSalesChart();
+    }
 
     // Inisialisasi Pagination Penjualan Harian
     initDailyPagination();

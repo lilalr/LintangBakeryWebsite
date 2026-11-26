@@ -383,4 +383,13 @@ class ReportAndTransactionEnhancementsTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.reports.index'));
         $response->assertOk();
     }
+
+    public function test_reports_page_persists_active_tab_from_query(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.reports.index', ['tab' => 'sales']));
+        $response->assertOk();
+        $response->assertSee('data-tab="sales"', false);
+        $response->assertSee('id="tab-sales"', false);
+        $response->assertSee('value="sales"', false);
+    }
 }
