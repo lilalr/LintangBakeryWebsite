@@ -134,7 +134,7 @@
         <ul style="padding-left: 20px; margin: 8px 0 0; line-height: 1.8;">
             <li><strong>Minimal Pembelian & Mix 50/50:</strong> Pemesanan online khusus reseller dengan <strong>minimal total checkout 100 bal</strong>. Pembeli bebas me-mix aneka varian produk dengan ketentuan <strong>minimal 50 bal per varian</strong> (contoh: 50 bal {{ $product->name }} + 50 bal produk lain = 100 bal).</li>
             <li><strong>Sistem Pembayaran Fleksibel:</strong> Mendukung pembayaran <strong>Lunas di Muka</strong> maupun <strong>Uang Muka 65% (DP)</strong> dengan pelunasan saat pesanan siap kirim. Tersedia QRIS Dinamis dan Transfer Bank resmi (BCA, BRI, Mandiri).</li>
-            <li><strong>Pengemasan Standar Kargo:</strong> Setiap pesanan bal dilindungi kardus ekstra tebal untuk menjaga kerenyahan dan meminimalisir risiko benturan di ekspedisi kargo.</li>
+            <li><strong>Pengantaran Langsung Wilayah Jawa:</strong> Setiap pesanan dilindungi kardus tebal dan diantar langsung oleh armada Lintang Bakery khusus area Pulau Jawa untuk menjaga kerenyahan dan keamanan produk.</li>
         </ul>
     </div>
 </section>

@@ -44,8 +44,8 @@
     </div>
     <div>
         <strong>03</strong>
-        <h3>Kirim se-Indonesia</h3>
-        <p>Packing kardus tebal standar kargo dengan armada & ekspedisi terpercaya.</p>
+        <h3>Pengiriman Wilayah Jawa</h3>
+        <p>Diantar langsung oleh armada Lintang Bakery khusus area Pulau Jawa, aman sampai ke lokasi Anda.</p>
     </div>
 </section>
 
