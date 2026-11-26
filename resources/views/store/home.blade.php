@@ -57,9 +57,8 @@
         <div>
             <span class="eyebrow" style="color: var(--brown); font-weight: 750; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">LOKASI TOKO &amp; PABRIK PRODUKSI</span>
             <h2 style="font-size: 24px; font-weight: 750; color: var(--brown-dark); margin: 6px 0 8px;">Kunjungi Lintang Bakery</h2>
-            <p style="margin: 0; color: #53463c; font-size: 14px; max-width: 680px; line-height: 1.6; display: flex; align-items: flex-start; gap: 8px;">
-                <svg style="width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; stroke: var(--brown); fill: none; stroke-width: 2;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span><strong>Jl. Leuwi Anyar No. 18 RT 001 RW 003 Babakan, Jl. Kalangsari, Sukamanah, Kec. Cipedes, Kota Tasikmalaya, Jawa Barat 46131</strong></span>
+            <p style="margin: 0; color: #66564c; font-size: 14px; max-width: 680px; line-height: 1.6; font-weight: 400;">
+                Jl. Leuwi Anyar No. 18 RT 001 RW 003 Babakan, Jl. Kalangsari, Sukamanah, Kec. Cipedes, Kota Tasikmalaya, Jawa Barat 46131
             </p>
         </div>
         <div>
@@ -83,7 +82,7 @@
             </iframe>
         </div>
         <div style="background: white; padding: 10px 16px; border-top: 1px solid #ebd9c8; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #786b62; flex-wrap: wrap; gap: 8px;">
-            <span>📍 JL Leuwi Anyar, No. 18, Tasikmalaya, Jawa Barat, Indonesia</span>
+            <span>JL Leuwi Anyar, No. 18, Tasikmalaya, Jawa Barat, Indonesia</span>
             <span>&copy; OpenStreetMap contributors</span>
         </div>
     </div>
