@@ -34,6 +34,7 @@ class CustomerController extends Controller
             ->with(['orders' => function ($q) {
                 $q->whereIn('status', self::CONFIRMED_STATUSES);
             }])
+            ->orderByDesc('active_orders_count')
             ->latest();
 
         if ($search) {

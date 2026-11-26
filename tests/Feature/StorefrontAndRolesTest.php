@@ -205,6 +205,27 @@ class StorefrontAndRolesTest extends TestCase
 
         $this->actingAs($admin);
 
+        $activeBuyer = User::factory()->create([
+            'role' => 'buyer',
+            'name' => 'Grosir Jaya Abadi',
+            'email' => 'grosir@example.com',
+            'created_at' => now()->subDays(5),
+        ]);
+        Order::create([
+            'code' => 'ORD-TEST-ACTIVE',
+            'user_id' => $activeBuyer->id,
+            'buyer' => $activeBuyer->name,
+            'phone' => '08123',
+            'address' => 'Yogya',
+            'city' => 'Yogya',
+            'province' => 'DIY',
+            'shipping_cost' => 10000,
+            'total' => 110000,
+            'status' => 'Sedang Diproduksi',
+            'payment_type' => 'full',
+            'payment_method' => 'bank_transfer',
+        ]);
+
         $this->get(route('admin.customers.index'))
             ->assertOk()
             ->assertSee('Data Pelanggan')
@@ -216,6 +237,7 @@ class StorefrontAndRolesTest extends TestCase
             ->assertDontSee('Kontak & WhatsApp')
             ->assertDontSee('WhatsApp')
             ->assertSee('>No</th>', false)
+            ->assertSeeInOrder(['Grosir Jaya Abadi', 'Budi Santoso'])
             ->assertSee('Budi Santoso')
             ->assertSee('budi@example.com')
             ->assertSee('081299887766');
