@@ -1856,6 +1856,126 @@ td small {
     grid-template-columns: repeat(2, 1fr);
 }
 
+.three-stats {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+    .three-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.stat-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+}
+
+.stat-card-attention {
+    border-color: #fca5a5;
+    background: linear-gradient(180deg, #fffafa 0%, #ffffff 100%);
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.06);
+}
+
+.stat-badge-pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #ffe4e6;
+    color: #e11d48;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.stat-link-action {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e11d48;
+    text-decoration: none;
+    transition: transform .15s ease;
+}
+
+.stat-link-action:hover {
+    transform: translateX(2px);
+}
+
+/* Dashboard Alert Strip */
+.dashboard-alert-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.dash-alert-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    flex-wrap: wrap;
+}
+
+.dash-alert-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.dash-alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.dash-alert-tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dash-alert-warning .dash-alert-tag {
+    background: #fde68a;
+    color: #78350f;
+}
+
+.dash-alert-danger .dash-alert-tag {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.dash-alert-content {
+    flex: 1;
+    min-width: 200px;
+}
+
+.dash-alert-link {
+    font-weight: 700;
+    font-size: 12px;
+    color: inherit;
+    text-decoration: underline;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
 .stat-card {
     min-height: 123px;
     padding: 17px;
