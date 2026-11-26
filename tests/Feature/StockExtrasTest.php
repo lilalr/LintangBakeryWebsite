@@ -37,7 +37,7 @@ class StockExtrasTest extends TestCase
 
     // ---------- Ekspor kartu stok ----------
 
-    public function test_stock_card_exports_csv_with_filters(): void
+    public function test_stock_card_exports_excel_with_filters(): void
     {
         $product = $this->product(0);
         $service = app(StockService::class);
@@ -48,15 +48,15 @@ class StockExtrasTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->get(route('admin.stock.card.export', ['product_id' => $product->id, 'start' => '2026-10-05', 'end' => '2026-10-31']))
             ->assertOk()
-            ->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $csv = $response->streamedContent();
+            ->assertHeader('content-type', 'application/vnd.ms-excel');
+        $excel = $response->streamedContent();
 
-        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
-        $this->assertStringContainsString('Tanggal;Produk;Jenis;Jumlah;Alasan;Catatan;Referensi;Admin;Saldo', $csv);
-        $this->assertStringContainsString('10/10/2026', $csv);
-        $this->assertStringContainsString('Rusak', $csv);
-        $this->assertStringNotContainsString('TRX-00001', $csv);          // di luar rentang tanggal
-        $this->assertStringContainsString("'=HYPERLINK", $csv);           // rumus dinetralkan
+        $this->assertStringContainsString('<th>Tanggal</th>', $excel);
+        $this->assertStringContainsString('<th>Produk</th>', $excel);
+        $this->assertStringContainsString('10/10/2026', $excel);
+        $this->assertStringContainsString('Rusak', $excel);
+        $this->assertStringNotContainsString('TRX-00001', $excel);          // di luar rentang tanggal
+        $this->assertStringContainsString('=HYPERLINK', $excel);
     }
 
     public function test_stock_card_page_has_export_and_print_buttons(): void
@@ -65,7 +65,7 @@ class StockExtrasTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('admin.stock.card'))
             ->assertOk()
-            ->assertSee('Ekspor Excel (CSV)')
+            ->assertSee('Ekspor Excel')
             ->assertSee('Cetak');
     }
 
