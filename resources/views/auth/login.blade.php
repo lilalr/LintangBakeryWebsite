@@ -1,6 +1,7 @@
 @extends('layouts.store')
 
 @section('title', 'Masuk · Lintang Bakery')
+@section('body_class', 'auth-page-login')
 
 @section('content')
 <section class="auth-wrap">
