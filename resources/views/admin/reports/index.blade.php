@@ -91,29 +91,29 @@
 
 {{-- TAB 1: RIWAYAT TRANSAKSI OFFLINE & ONLINE (Utama / Default) --}}
 <div class="report-tab-content active" id="tab-detail">
-    <div class="stats-grid" style="margin-bottom: 18px;">
-        <article class="stat-card">
-            <span>Total Transaksi</span>
+    <div class="five-stats">
+        <article class="stat-card report-stat-card">
+            <span class="stat-label">Total Transaksi</span>
             <strong>{{ number_format($totalTransactions, 0, ',', '.') }}</strong>
             <small>transaksi terkonfirmasi</small>
         </article>
-        <article class="stat-card">
-            <span>Total Penjualan</span>
+        <article class="stat-card report-stat-card">
+            <span class="stat-label">Total Penjualan</span>
             <strong style="color:var(--brown);">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</strong>
             <small>{{ match($currentChannel ?? 'all') { 'online' => 'pesanan online', 'offline' => 'penjualan offline', default => 'online + offline' } }}</small>
         </article>
-        <article class="stat-card">
-            <span>Item Terjual</span>
+        <article class="stat-card report-stat-card">
+            <span class="stat-label">Item Terjual</span>
             <strong>{{ number_format($totalItemsSold, 0, ',', '.') }}</strong>
             <small>bal produk</small>
         </article>
-        <article class="stat-card">
-            <span>Rata-rata Transaksi</span>
+        <article class="stat-card report-stat-card">
+            <span class="stat-label">Rata-rata Transaksi</span>
             <strong>Rp {{ $totalTransactions > 0 ? number_format(round($totalRevenue / $totalTransactions), 0, ',', '.') : '0' }}</strong>
             <small>nilai belanja rata-rata</small>
         </article>
-        <article class="stat-card" style="{{ ($totalLoss ?? 0) > 0 ? 'border-left: 3px solid #dc3545;' : '' }}">
-            <span>Kerugian Stok</span>
+        <article class="stat-card report-stat-card" style="{{ ($totalLoss ?? 0) > 0 ? 'border-left: 3px solid #dc3545;' : '' }}">
+            <span class="stat-label">Kerugian Stok</span>
             @if (($totalLoss ?? 0) > 0)
                 <strong style="color:#c53030;">Rp {{ number_format($totalLoss, 0, ',', '.') }}</strong>
                 <small>rusak &amp; kedaluwarsa</small>
