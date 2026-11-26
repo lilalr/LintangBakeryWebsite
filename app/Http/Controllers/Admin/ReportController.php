@@ -407,8 +407,8 @@ class ReportController extends Controller
             return (int) $m->quantity * $unitPrice;
         }) + (float) StockMutation::where('type', 'out')
             ->where('loss_amount', '>', 0)
-            ->whereDate('date', '>=', $startDate)
-            ->whereDate('date', '<=', $endDate)
+            ->whereDate('mutation_date', '>=', $startDate)
+            ->whereDate('mutation_date', '<=', $endDate)
             ->sum('loss_amount');
 
         return [

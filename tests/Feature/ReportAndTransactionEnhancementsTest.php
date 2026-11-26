@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\OfflineTransaction;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StockMutation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -360,5 +361,26 @@ class ReportAndTransactionEnhancementsTest extends TestCase
         $response->assertDontSee('Unduh CSV Sesuai Filter Ini');
         $response->assertSee('Export Excel');
         $response->assertSee('id="trxPaginationWrap"', false);
+    }
+
+    public function test_reports_calculates_stock_mutation_loss_without_query_exception(): void
+    {
+        $product = $this->createProduct(['stock' => 50, 'cost_price' => 50000]);
+
+        StockMutation::create([
+            'product_id' => $product->id,
+            'user_id' => $this->admin->id,
+            'admin_name' => $this->admin->name,
+            'type' => 'out',
+            'quantity' => 2,
+            'balance' => 48,
+            'reason' => 'Barang Rusak',
+            'reference_number' => 'MUT-TEST-01',
+            'mutation_date' => now()->toDateString(),
+            'loss_amount' => 100000,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.reports.index'));
+        $response->assertOk();
     }
 }
