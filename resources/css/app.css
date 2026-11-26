@@ -363,8 +363,20 @@ button {
     border-radius: 8px;
     color: white;
     background: var(--brown);
-    font-size: 23px;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.icon-button:hover {
+    background: var(--brown-dark, #5c3a21);
+}
+
+.icon-button svg {
+    display: block;
 }
 
 .feature-strip {

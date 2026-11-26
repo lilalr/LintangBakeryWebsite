@@ -300,7 +300,7 @@ class StorefrontAndRolesTest extends TestCase
         $response3 = $this->get(route('cart.index'));
         $response3->assertOk()
             ->assertSee('Syarat Minimal Reseller Terpenuhi!')
-            ->assertSee('Lanjut ke Checkout (100 Bal)');
+            ->assertSee('Lanjut ke Checkout');
     }
 
     public function test_buyer_can_view_order_detail_and_tracking(): void
@@ -554,5 +554,47 @@ class StorefrontAndRolesTest extends TestCase
             ->assertSee('Jawa Tengah')
             ->assertSee('Bukti pembayaran / transfer')
             ->assertSee('* (Wajib Diunggah)');
+    }
+
+    public function test_user_registration_converts_email_to_lowercase_and_validates_phone_length(): void
+    {
+        // 1. Email is automatically lowercased
+        $response = $this->post(route('register.store'), [
+            'name' => 'Agus Test Lowercase',
+            'email' => 'Agus.Tester@Gmail.COM',
+            'phone' => '081234567890',
+            'address' => 'Jl. Uji Coba No. 10',
+            'password' => 'secret12345',
+            'password_confirmation' => 'secret12345',
+        ]);
+
+        $response->assertRedirect(route('buyer.dashboard'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'agus.tester@gmail.com',
+            'phone' => '081234567890',
+        ]);
+
+        // 2. Phone exceeding 15 characters fails validation
+        $failResponse = $this->post(route('register.store'), [
+            'name' => 'Agus Too Long Phone',
+            'email' => 'agus.longphone@gmail.com',
+            'phone' => '081234567890123456789',
+            'address' => 'Jl. Uji Coba No. 10',
+            'password' => 'secret12345',
+            'password_confirmation' => 'secret12345',
+        ]);
+
+        $failResponse->assertSessionHasErrors(['phone']);
+    }
+
+    public function test_register_page_displays_updated_heading_and_password_toggle_attributes(): void
+    {
+        $response = $this->get(route('register'));
+
+        $response->assertOk()
+            ->assertSee('Buat akun untuk lanjutkan pemesanan')
+            ->assertDontSee('Akun baru otomatis memiliki akses user, bukan admin.')
+            ->assertSee('data-password-field')
+            ->assertSee('password-toggle');
     }
 }

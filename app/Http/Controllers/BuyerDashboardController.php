@@ -20,7 +20,7 @@ class BuyerDashboardController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'phone' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:15'],
             'address' => ['required', 'string', 'max:1000'],
         ]);
         $request->user()->update($validated);

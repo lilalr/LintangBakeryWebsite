@@ -21,6 +21,7 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
+        $credentials['email'] = strtolower(trim($credentials['email']));
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors(['email' => 'Email atau password tidak sesuai.'])->onlyInput('email');
@@ -43,10 +44,12 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:15'],
             'address' => ['required', 'string', 'max:1000'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
+        $validated['email'] = strtolower(trim($validated['email']));
+        $validated['phone'] = trim($validated['phone']);
 
         $user = User::create([...$validated, 'role' => 'buyer']);
         Auth::login($user);

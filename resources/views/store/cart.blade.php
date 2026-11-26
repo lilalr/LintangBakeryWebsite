@@ -185,7 +185,7 @@
         
         <div style="display: flex; flex-direction: column; gap: 8px;">
             @if ($isEligible)
-                <a class="button button-full" href="{{ route('checkout.index') }}">Lanjut ke Checkout ({{ $totalBal }} Bal) →</a>
+                <a class="button button-full" href="{{ route('checkout.index') }}">Lanjut ke Checkout →</a>
             @else
                 @php
                     $alertMsg = $hasUnderMinItems 
@@ -193,11 +193,7 @@
                         : 'Minimal total pemesanan online adalah 100 bal. Silakan tambahkan ' . $remainingTotalBal . ' bal lagi.';
                 @endphp
                 <button type="button" class="button button-full" style="opacity: 0.65; cursor: not-allowed; background: #92400e; border-color: #92400e;" onclick="alert('{{ $alertMsg }}')">
-                    @if ($hasUnderMinItems)
-                        Lanjut ke Checkout (Ada Produk < 50 Bal) →
-                    @else
-                        Lanjut ke Checkout (Kurang {{ $remainingTotalBal }} Bal) →
-                    @endif
+                    Lanjut ke Checkout →
                 </button>
             @endif
             <a class="button button-light button-full" href="{{ route('store.products') }}" style="margin-top: 0;">+ Tambah / Mix Produk Lain</a>
