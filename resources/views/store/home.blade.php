@@ -50,6 +50,8 @@
 </section>
 
 {{-- Lokasi Toko & Rumah Produksi --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+
 <section class="store-location-card" style="margin: 40px 0 20px; padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: white; box-shadow: 0 4px 20px rgba(92,58,33,0.03);">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-bottom: 24px;">
         <div>
@@ -68,16 +70,70 @@
         </div>
     </div>
 
-    <div style="border-radius: 12px; overflow: hidden; border: 1px solid var(--line); position: relative; min-height: 380px; background: #faf6f0;">
-        <iframe 
-            src="https://maps.google.com/maps?q=Jl.+Leuwi+Anyar+No.+18,+RT.001/RW.003,+Babakan,+Kalangsari,+Sukamanah,+Kec.+Cipedes,+Kota+Tasikmalaya,+Jawa+Barat+46131&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-            width="100%" 
-            height="380" 
-            style="border: 0; display: block;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
+    {{-- Map Container with Leaflet & OpenStreetMap --}}
+    <div style="border-radius: 12px; overflow: hidden; border: 1px solid var(--line); position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.04); background: #fbf7f2;">
+        <div id="storeLocationMap" style="width: 100%; height: 380px; z-index: 1;">
+            {{-- Fallback iframe jika JavaScript Leaflet terhalang --}}
+            <iframe 
+                src="https://www.openstreetmap.org/export/embed.html?bbox=108.2250%2C-7.3240%2C108.2420%2C-7.3150&layer=mapnik&marker=-7.319339%2C108.233653" 
+                width="100%" 
+                height="380" 
+                style="border: 0; display: block;" 
+                loading="lazy">
+            </iframe>
+        </div>
+        <div style="background: white; padding: 10px 16px; border-top: 1px solid #ebd9c8; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #786b62; flex-wrap: wrap; gap: 8px;">
+            <span>📍 JL Leuwi Anyar, No. 18, Tasikmalaya, Jawa Barat, Indonesia</span>
+            <span>&copy; OpenStreetMap contributors</span>
+        </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var lat = -7.319339;
+    var lng = 108.233653;
+    var mapContainer = document.getElementById('storeLocationMap');
+
+    if (typeof L !== 'undefined' && mapContainer) {
+        // Clear fallback iframe inside container
+        mapContainer.innerHTML = '';
+
+        var map = L.map('storeLocationMap', { 
+            scrollWheelZoom: false 
+        }).setView([lat, lng], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // Custom marker LK (Lintang Kue / Bakery) exactly matching reference
+        var lkIcon = L.divIcon({
+            className: 'lk-custom-pin',
+            html: '<div style="position:relative; width:44px; height:50px;">' +
+                  '<div style="background:white; border:2.5px solid #5c3a21; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#5c3a21; box-shadow:0 4px 12px rgba(92,58,33,0.3);">LK</div>' +
+                  '<div style="position:absolute; bottom:2px; left:16px; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid #5c3a21;"></div>' +
+                  '</div>',
+            iconSize: [44, 50],
+            iconAnchor: [22, 50],
+            popupAnchor: [0, -45]
+        });
+
+        var marker = L.marker([lat, lng], { icon: lkIcon }).addTo(map);
+        marker.bindPopup(
+            '<div style="font-family: inherit; font-size: 13px; line-height: 1.4; padding: 2px;">' +
+            '<strong style="color: #5c3a21; font-size: 14px;">Lintang Bakery</strong><br>' +
+            'Pabrik &amp; Toko Kue Tambang<br>' +
+            '<span style="color: #666; font-size: 11.5px;">Jl. Leuwi Anyar No. 18, Cipedes, Tasikmalaya</span>' +
+            '</div>'
+        ).openPopup();
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
+    }
+});
+</script>
 @endsection
