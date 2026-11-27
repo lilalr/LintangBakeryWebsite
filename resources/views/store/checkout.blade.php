@@ -6,7 +6,10 @@
 @php
     $subtotal = collect($cart)->sum('subtotal');
     $quantity = collect($cart)->sum('quantity');
-    $shipping = $quantity * 10000;
+    $defaultProv = old('province', 'D.I. Yogyakarta');
+    $defaultCity = old('city', 'Kota Yogyakarta');
+    $shippingRate = \App\Http\Controllers\CheckoutController::getShippingRatePerBal($defaultProv, $defaultCity);
+    $shipping = $quantity * $shippingRate;
     $total = $subtotal + $shipping;
     $dp = (int) round($subtotal * 0.65);
     $remaining = $total - $dp;
@@ -258,7 +261,7 @@
                 <input type="radio" id="payment_type_full" name="payment_type" value="full" @checked($defaultType === 'full') onchange="refreshPaymentUI()">
                 <div>
                     <div class="choice-title">Lunas di muka</div>
-                    <div class="choice-desc">Bayar penuh seluruh pesanan: <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong> (sudah termasuk ongkir).</div>
+                    <div class="choice-desc" id="choiceFullDesc">Bayar penuh seluruh pesanan: <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong> (sudah termasuk ongkir).</div>
                 </div>
             </label>
             <label class="choice-card" for="payment_type_dp">
@@ -419,12 +422,12 @@
             </div>
         @endforeach
         <div class="summary-line">
-            <span>Ongkir (Rp 10.000 × jumlah bal)</span>
-            <strong>Rp {{ number_format($shipping, 0, ',', '.') }}</strong>
+            <span id="summaryShippingLabel">Ongkir (Rp {{ number_format($shippingRate, 0, ',', '.') }} × {{ $quantity }} bal)</span>
+            <strong id="summaryShippingVal">Rp {{ number_format($shipping, 0, ',', '.') }}</strong>
         </div>
         <div class="summary-line" style="border-top: 1.5px solid #ebd9c7; margin-top: 8px; padding-top: 12px;">
             <span>Total keseluruhan</span>
-            <strong style="font-size: 14px;">Rp {{ number_format($total, 0, ',', '.') }}</strong>
+            <strong id="summaryTotalVal" style="font-size: 14px;">Rp {{ number_format($total, 0, ',', '.') }}</strong>
         </div>
 
         <div id="summaryPayNowWrap" class="summary-highlight-row" style="{{ $defaultType === 'dp' ? '' : 'display:none;' }}">
@@ -441,16 +444,20 @@
         <div id="summaryFullWrap" class="summary-highlight-row" style="{{ $defaultType === 'full' ? '' : 'display:none;' }}">
             <div class="summary-line" style="padding: 4px 0; border: none; font-size: 12px; font-weight: 700; color: var(--brown-dark);">
                 <span>Total yang Harus Dibayar</span>
-                <strong style="color: var(--brown); font-size: 16px;">Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                <strong id="summaryFullPayVal" style="color: var(--brown); font-size: 16px;">Rp {{ number_format($total, 0, ',', '.') }}</strong>
             </div>
         </div>
     </aside>
 </div>
 
 <script>
-    const TOTAL_AMOUNT = {{ (int) $total }};
-    const DP_AMOUNT = {{ (int) $dp }};
-    const REMAINING_AMOUNT = {{ (int) $remaining }};
+    const CART_SUBTOTAL = {{ (int) $subtotal }};
+    const TOTAL_QTY = {{ (int) $quantity }};
+    let currentShippingRate = {{ (int) $shippingRate }};
+    let currentShipping = TOTAL_QTY * currentShippingRate;
+    let TOTAL_AMOUNT = CART_SUBTOTAL + currentShipping;
+    let DP_AMOUNT = {{ (int) $dp }};
+    let REMAINING_AMOUNT = TOTAL_AMOUNT - DP_AMOUNT;
 
     function getActivePaymentType() {
         const checked = document.querySelector('input[name="payment_type"]:checked');
@@ -459,6 +466,47 @@
 
     function getActiveAmount() {
         return getActivePaymentType() === 'dp' ? DP_AMOUNT : TOTAL_AMOUNT;
+    }
+
+    function getShippingRateForCity(province, city) {
+        if (!city) return 15000;
+        const norm = (city + ' ' + (province || '')).toLowerCase();
+        const tenThousand = ['ciamis', 'tasikmalaya', 'banjar', 'pangandaran', 'garut', 'bandung', 'cimahi', 'purwokerto', 'banyumas', 'cilacap', 'purbalingga'];
+        for (const kw of tenThousand) {
+            if (norm.includes(kw)) {
+                return 10000;
+            }
+        }
+        return 15000;
+    }
+
+    function updateShippingAndTotals() {
+        const provSelect = document.getElementById('provinceSelect');
+        const citySelect = document.getElementById('citySelect');
+        const prov = provSelect ? provSelect.value : '';
+        const city = citySelect ? citySelect.value : '';
+
+        currentShippingRate = getShippingRateForCity(prov, city);
+        currentShipping = TOTAL_QTY * currentShippingRate;
+        TOTAL_AMOUNT = CART_SUBTOTAL + currentShipping;
+        REMAINING_AMOUNT = TOTAL_AMOUNT - DP_AMOUNT;
+
+        const shippingLabel = document.getElementById('summaryShippingLabel');
+        const shippingVal = document.getElementById('summaryShippingVal');
+        const totalVal = document.getElementById('summaryTotalVal');
+        const fullPayVal = document.getElementById('summaryFullPayVal');
+        const remainingVal = document.getElementById('summaryRemainingVal');
+        const choiceFullDesc = document.getElementById('choiceFullDesc');
+
+        const rateStr = currentShippingRate.toLocaleString('id-ID');
+        if (shippingLabel) shippingLabel.textContent = `Ongkir (Rp ${rateStr} × ${TOTAL_QTY} bal)`;
+        if (shippingVal) shippingVal.textContent = 'Rp ' + currentShipping.toLocaleString('id-ID');
+        if (totalVal) totalVal.textContent = 'Rp ' + TOTAL_AMOUNT.toLocaleString('id-ID');
+        if (fullPayVal) fullPayVal.textContent = 'Rp ' + TOTAL_AMOUNT.toLocaleString('id-ID');
+        if (remainingVal) remainingVal.textContent = 'Rp ' + REMAINING_AMOUNT.toLocaleString('id-ID');
+        if (choiceFullDesc) choiceFullDesc.innerHTML = `Bayar penuh seluruh pesanan: <strong>Rp ${TOTAL_AMOUNT.toLocaleString('id-ID')}</strong> (sudah termasuk ongkir).`;
+
+        refreshPaymentUI();
     }
 
     // CRC16-CCITT implementation untuk EMVCo Standard QRIS Dinamis
@@ -644,8 +692,10 @@
             if (preserveOldCity && OLD_CITY && REGIONS_DATA[selectedProv].includes(OLD_CITY)) {
                 citySelect.value = OLD_CITY;
             }
+            updateShippingAndTotals();
         } else {
             citySelect.disabled = true;
+            updateShippingAndTotals();
         }
     }
 
@@ -661,7 +711,11 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         initRegionDropdown();
-        refreshPaymentUI();
+        const citySelect = document.getElementById('citySelect');
+        if (citySelect) {
+            citySelect.addEventListener('change', updateShippingAndTotals);
+        }
+        updateShippingAndTotals();
     });
 </script>
 @endsection

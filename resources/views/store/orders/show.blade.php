@@ -204,8 +204,12 @@
                     <span>Subtotal Produk:</span>
                     <span>Rp {{ number_format($order->total, 0, ',', '.') }}</span>
                 </div>
+                @php
+                    $qtyTotal = $order->items->sum('quantity');
+                    $ratePerBal = $qtyTotal > 0 ? (int) round($order->shipping_cost / $qtyTotal) : 10000;
+                @endphp
                 <div class="summary-line">
-                    <span>Ongkos Kirim Kargo ({{ $order->items->sum('quantity') }} bal × Rp 10.000):</span>
+                    <span>Ongkos Kirim Kargo ({{ $qtyTotal }} bal × Rp {{ number_format($ratePerBal, 0, ',', '.') }}):</span>
                     <span>Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
                 </div>
                 <div class="summary-line total-line">

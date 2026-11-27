@@ -229,6 +229,31 @@ class CheckoutController extends Controller
         ],
     ];
 
+    public static function getShippingRatePerBal(?string $province, ?string $city): int
+    {
+        if (! $city) {
+            return 15000;
+        }
+
+        $norm = strtolower($city.' '.($province ?? ''));
+
+        // Rute Bandung - Ciamis - Purwokerto & sekitarnya: Rp 10.000 / bal
+        $tenThousandKeywords = [
+            'ciamis', 'tasikmalaya', 'banjar', 'pangandaran', 'garut',
+            'bandung', 'cimahi',
+            'purwokerto', 'banyumas', 'cilacap', 'purbalingga',
+        ];
+
+        foreach ($tenThousandKeywords as $keyword) {
+            if (str_contains($norm, $keyword)) {
+                return 10000;
+            }
+        }
+
+        // Jakarta, Jogjakarta, dan wilayah lainnya di Pulau Jawa: Rp 15.000 / bal
+        return 15000;
+    }
+
     public function index(Request $request): View|RedirectResponse
     {
         $cart = $this->cartProducts($request);
@@ -290,7 +315,8 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index')->with('error', 'Minimal pemesanan online adalah 100 bal (khusus reseller). Total pesanan: '.$quantity.' bal.');
             }
         }
-        $shippingCost = $quantity * 10000;
+        $ratePerBal = self::getShippingRatePerBal($validated['province'], $validated['city']);
+        $shippingCost = $quantity * $ratePerBal;
         $paymentDue = $subtotal + $shippingCost;
         $deposit = $validated['payment_type'] === 'dp' ? (int) round($subtotal * 0.65) : $paymentDue;
         $proofPath = $request->file('payment_proof')?->store('payment-proofs', 'public');

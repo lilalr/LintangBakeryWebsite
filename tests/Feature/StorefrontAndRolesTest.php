@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\CheckoutController;
 use App\Models\OfflineTransaction;
 use App\Models\Order;
 use App\Models\Product;
@@ -74,8 +75,8 @@ class StorefrontAndRolesTest extends TestCase
             'buyer' => 'Pembeli Demo',
             'phone' => '08123456789',
             'address' => 'Jalan Mawar 1',
-            'city' => 'Kota Yogyakarta',
-            'province' => 'D.I. Yogyakarta',
+            'city' => 'Kota Bandung',
+            'province' => 'Jawa Barat',
             'payment_type' => 'dp',
             'payment_method' => 'bank_transfer',
             'payment_proof' => UploadedFile::fake()->image('bukti_transfer.jpg'),
@@ -161,8 +162,8 @@ class StorefrontAndRolesTest extends TestCase
             'buyer' => 'Pembeli DP',
             'phone' => '08123456789',
             'address' => 'Jalan Mawar 1',
-            'city' => 'Kota Yogyakarta',
-            'province' => 'D.I. Yogyakarta',
+            'city' => 'Kota Bandung',
+            'province' => 'Jawa Barat',
             'payment_type' => 'dp',
             'payment_method' => 'bank_transfer',
             'payment_proof' => UploadedFile::fake()->image('bukti_dp.jpg'),
@@ -596,5 +597,24 @@ class StorefrontAndRolesTest extends TestCase
             ->assertDontSee('Akun baru otomatis memiliki akses user, bukan admin.')
             ->assertSee('data-password-field')
             ->assertSee('password-toggle');
+    }
+
+    public function test_shipping_cost_varies_by_destination_city(): void
+    {
+        // Rute Bandung - Ciamis - Purwokerto: Rp 10.000 / bal
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Barat', 'Kab. Ciamis'));
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Barat', 'Kota Bandung'));
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Barat', 'Kota Cimahi'));
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Barat', 'Kota Tasikmalaya'));
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Tengah', 'Kab. Banyumas (Purwokerto)'));
+        $this->assertSame(10000, CheckoutController::getShippingRatePerBal('Jawa Tengah', 'Kab. Cilacap'));
+
+        // Jakarta, Jogjakarta, dan wilayah lain: Rp 15.000 / bal
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('DKI Jakarta', 'Kota Jakarta Pusat'));
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('DKI Jakarta', 'Kota Jakarta Selatan'));
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('D.I. Yogyakarta', 'Kota Yogyakarta'));
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('D.I. Yogyakarta', 'Kab. Sleman'));
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('Jawa Timur', 'Kota Surabaya'));
+        $this->assertSame(15000, CheckoutController::getShippingRatePerBal('Jawa Tengah', 'Kota Semarang'));
     }
 }

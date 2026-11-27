@@ -181,7 +181,7 @@
             <span id="cart-total-label">Total produk ({{ $totalBal }} bal)</span>
             <strong id="cart-total-amount">Rp {{ number_format(collect($cart)->sum('subtotal'), 0, ',', '.') }}</strong>
         </div>
-        <p style="margin: 6px 0 12px; font-size: 11px; color: var(--muted);">Ongkos kirim (Rp 10.000 × bal) & opsi DP/lunas dihitung saat checkout.</p>
+        <p style="margin: 6px 0 12px; font-size: 11px; color: var(--muted);">Ongkos kirim (Rp 10.000–Rp 15.000/bal sesuai rute kota) & opsi DP/lunas dihitung saat checkout.</p>
         
         <div style="display: flex; flex-direction: column; gap: 8px;">
             @if ($isEligible)

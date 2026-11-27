@@ -304,8 +304,12 @@
                     <span>Subtotal Produk:</span>
                     <span style="font-weight:550; color:#2d1e15;">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
                 </div>
+                @php
+                    $qtyTotal = $order->items->sum('quantity');
+                    $ratePerBal = $qtyTotal > 0 ? (int) round($order->shipping_cost / $qtyTotal) : 10000;
+                @endphp
                 <div style="display:flex; justify-content:space-between; color:#6b5c51;">
-                    <span>Ongkir Kargo ({{ $order->items->sum('quantity') }} bal × Rp 10.000):</span>
+                    <span>Ongkir Kargo ({{ $qtyTotal }} bal × Rp {{ number_format($ratePerBal, 0, ',', '.') }}):</span>
                     <span style="font-weight:550; color:#2d1e15;">Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; font-weight:750; font-size:15px; color:#2e1f16; border-top:1px solid #ebdcd0; padding-top:8px; margin-top:2px;">
