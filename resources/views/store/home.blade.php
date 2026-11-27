@@ -11,7 +11,7 @@
         <a class="button" href="#produk">Jelajahi produk <span>↓</span></a>
     </div>
     <div class="hero-art">
-        <img src="/images/products/kueTambang.jpg" alt="Aneka camilan dan kue kering Lintang Bakery" style="width: 100%; height: 100%; object-fit: cover;">
+        <img src="/images/products/tambang-besar.jpg" alt="Aneka camilan dan kue kering Lintang Bakery" style="width: 100%; height: 100%; object-fit: cover;">
     </div>
 </section>
 
@@ -58,11 +58,11 @@
             <span class="eyebrow" style="color: var(--brown); font-weight: 750; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">LOKASI TOKO &amp; PABRIK PRODUKSI</span>
             <h2 style="font-size: 24px; font-weight: 750; color: var(--brown-dark); margin: 6px 0 8px;">Kunjungi Lintang Bakery</h2>
             <p style="margin: 0; color: #66564c; font-size: 14px; max-width: 680px; line-height: 1.6; font-weight: 400;">
-                Jl. Leuwi Anyar No. 18 RT 001 RW 003 Babakan, Jl. Kalangsari, Sukamanah, Kec. Cipedes, Kota Tasikmalaya, Jawa Barat 46131
+                Jl. Jend. Sudirman No.38, Ciamis, Kec. Ciamis, Kabupaten Ciamis, Jawa Barat 46211
             </p>
         </div>
         <div>
-            <a href="https://maps.google.com/?q=Jl.+Leuwi+Anyar+No.+18+RT+001+RW+003+Babakan,+Jl.+Kalangsari,+Sukamanah,+Kec.+Cipedes,+Kota+Tasikmalaya,+Jawa+Barat+46131" target="_blank" rel="noopener noreferrer" class="button" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; font-size: 13px; text-decoration: none;">
+            <a href="https://maps.google.com/?q=Jl.+Jend.+Sudirman+No.38,+Ciamis,+Kec.+Ciamis,+Kabupaten+Ciamis,+Jawa+Barat+46211" target="_blank" rel="noopener noreferrer" class="button" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; font-size: 13px; text-decoration: none;">
                 <svg style="width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
                 <span>Buka di Google Maps ↗</span>
             </a>
@@ -74,7 +74,7 @@
         <div id="storeLocationMap" style="width: 100%; height: 380px; z-index: 1;">
             {{-- Fallback iframe jika JavaScript Leaflet terhalang --}}
             <iframe 
-                src="https://www.openstreetmap.org/export/embed.html?bbox=108.2250%2C-7.3240%2C108.2420%2C-7.3150&layer=mapnik&marker=-7.319339%2C108.233653" 
+                src="https://www.openstreetmap.org/export/embed.html?bbox=108.3440%2C-7.3320%2C108.3600%2C-7.3200&layer=mapnik&marker=-7.326221%2C108.351795" 
                 width="100%" 
                 height="380" 
                 style="border: 0; display: block;" 
@@ -82,7 +82,7 @@
             </iframe>
         </div>
         <div style="background: white; padding: 10px 16px; border-top: 1px solid #ebd9c8; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #786b62; flex-wrap: wrap; gap: 8px;">
-            <span>JL Leuwi Anyar, No. 18, Tasikmalaya, Jawa Barat, Indonesia</span>
+            <span>Jl. Jend. Sudirman No.38, Ciamis, Jawa Barat 46211</span>
             <span>&copy; OpenStreetMap contributors</span>
         </div>
     </div>
@@ -91,8 +91,8 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var lat = -7.319339;
-    var lng = 108.233653;
+    var lat = -7.326221;
+    var lng = 108.351795;
     var mapContainer = document.getElementById('storeLocationMap');
 
     if (typeof L !== 'undefined' && mapContainer) {
@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function () {
         marker.bindPopup(
             '<div style="font-family: inherit; font-size: 13px; line-height: 1.4; padding: 2px;">' +
             '<strong style="color: #5c3a21; font-size: 14px;">Lintang Bakery</strong><br>' +
-            'Pabrik &amp; Toko Kue Tambang<br>' +
-            '<span style="color: #666; font-size: 11.5px;">Jl. Leuwi Anyar No. 18, Cipedes, Tasikmalaya</span>' +
+            'Pabrik &amp; Toko Aneka Kue Lintang<br>' +
+            '<span style="color: #666; font-size: 11.5px;">Jl. Jend. Sudirman No.38, Ciamis</span>' +
             '</div>'
         ).openPopup();
 

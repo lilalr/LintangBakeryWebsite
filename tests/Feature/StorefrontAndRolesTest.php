@@ -20,7 +20,7 @@ class StorefrontAndRolesTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Lintang Bakery')
-            ->assertSee('Jl. Leuwi Anyar No. 18');
+            ->assertSee('Jl. Jend. Sudirman No.38');
     }
 
     public function test_admin_area_is_restricted_to_admin_users(): void

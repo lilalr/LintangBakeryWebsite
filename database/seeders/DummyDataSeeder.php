@@ -110,11 +110,15 @@ class DummyDataSeeder extends Seeder
             $products = Product::all()->keyBy('name');
         }
 
-        $pTambang = $products->get('Kue Tambang');
-        $pKeciput = $products->get('Kue Keciput');
-        $pStikUbi = $products->get('Stik Ubi Ungu');
-        $pStikAsin = $products->get('Stik Asin');
-        $pSeblak = $products->get('Kerupuk Seblak Kering');
+        $pTambangBesar = $products->get('Tambang Besar') ?: $products->get('Kue Tambang') ?: $products->first();
+        $pCiput = $products->get('Ciput') ?: $products->get('Kue Keciput') ?: $products->skip(1)->first();
+        $pTambangSpesial = $products->get('Tambang Spesial') ?: $products->last();
+
+        $pTambang = $pTambangBesar;
+        $pKeciput = $pCiput;
+        $pStikUbi = $pTambangSpesial;
+        $pStikAsin = $pTambangBesar;
+        $pSeblak = $pCiput;
 
         // 3. PESANAN ONLINE (ORDERS)
         $ordersData = [
@@ -561,10 +565,8 @@ class DummyDataSeeder extends Seeder
         }
 
         // Set realistic current stocks
-        $pTambang->update(['stock' => 185, 'min_stock' => 50]);
-        $pKeciput->update(['stock' => 142, 'min_stock' => 50]);
-        $pStikUbi->update(['stock' => 45, 'min_stock' => 50]); // Sedikit di bawah min_stock untuk trigger alert stok menipis!
-        $pStikAsin->update(['stock' => 210, 'min_stock' => 50]);
-        $pSeblak->update(['stock' => 195, 'min_stock' => 50]);
+        $pTambangBesar?->update(['stock' => 185, 'min_stock' => 50]);
+        $pCiput?->update(['stock' => 142, 'min_stock' => 50]);
+        $pTambangSpesial?->update(['stock' => 45, 'min_stock' => 50]); // Sedikit di bawah min_stock untuk trigger alert stok menipis!
     }
 }
