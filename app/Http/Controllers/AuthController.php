@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         return Auth::user()->role === 'admin'
             ? redirect()->intended(route('admin.dashboard'))
-            : redirect()->intended(route('buyer.dashboard'));
+            : redirect()->intended(route('store.home'));
     }
 
     public function showRegister(): View

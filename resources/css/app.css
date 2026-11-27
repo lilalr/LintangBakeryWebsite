@@ -1703,3 +1703,355 @@ td small { display: block; max-width: 240px; margin-top: 4px; color: var(--muted
     .admin-content { padding: 0; }
     .panel, .stat-card { break-inside: avoid; }
 }
+<<<<<<< Updated upstream
+=======
+
+/* ── Input jumlah manual (qty-manual-input) ──────────────────────────────── */
+/* Tampak persis seperti teks biasa, tapi bisa diklik dan diedit langsung     */
+.qty-manual-input {
+    width: 40px;
+    min-width: 40px;
+    padding: 0 4px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brown-dark);
+    line-height: 28px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    cursor: text;
+    outline: none;
+}
+
+/* Hide browser spin arrows */
+.qty-manual-input::-webkit-inner-spin-button,
+.qty-manual-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Warning state (qty < 50) */
+.qty-manual-input.qty-warn {
+    color: #b45309;
+}
+
+/* Cart table page — match row button height */
+.quantity-control .qty-manual-input {
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
+    width: 44px;
+}
+
+/* Tombol ✓ konfirmasi — muncul saat nilai input berubah */
+.qty-confirm-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: #28a745;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.qty-confirm-btn:hover {
+    background: #1e7e34;
+    transform: scale(1.1);
+}
+
+/* Manajemen stok */
+.status-ok {
+    color: #276745;
+    background: #f1faf4;
+}
+
+.status-low {
+    color: #805e20;
+    background: #fff4d8;
+}
+
+.status-out {
+    color: #913e36;
+    background: #fdeceb;
+}
+
+.badge-in {
+    color: #276745;
+    background: #f1faf4;
+}
+
+.badge-out {
+    color: #913e36;
+    background: #fdeceb;
+}
+
+.stock-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.stock-tools .spacer {
+    flex: 1;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+}
+
+.filter-bar label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #514238;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.num-in {
+    color: #276745;
+    font-weight: 700;
+}
+
+.num-out {
+    color: #913e36;
+    font-weight: 700;
+}
+
+.void-row {
+    opacity: .6;
+}
+
+.void-row .amount {
+    text-decoration: line-through;
+}
+
+.void-form {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.void-form input {
+    width: 130px;
+    min-height: 30px;
+}
+
+.form-hint {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+
+/* ===== NAVBAR LINTANG BAKERY ===== */
+
+.store-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.store-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.store-nav .cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.store-nav .cart-icon {
+    display: block;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px;
+    max-width: 22px;
+    flex-shrink: 0;
+}
+
+.store-nav .link-button {
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+}
+
+.store-nav form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.store-nav .link-button:hover {
+    color: var(--brown);
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 650px) {
+    .store-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .store-nav {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .store-nav .cart-icon {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}
+
+
+/* =====================================
+   DROPDOWN AKUN SAYA
+===================================== */
+
+.account-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.account-dropdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    color: #66564c;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.account-dropdown-btn:hover {
+    color: var(--brown);
+}
+
+.account-dropdown-btn svg {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.account-dropdown:hover .account-dropdown-btn svg,
+.account-dropdown:focus-within .account-dropdown-btn svg {
+    transform: rotate(180deg);
+}
+
+/* Kotak dropdown */
+.account-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    min-width: 190px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #eee3d9;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+    z-index: 1000;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+}
+
+/* Munculkan dropdown */
+.account-dropdown:hover .account-dropdown-menu,
+.account-dropdown:focus-within .account-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Link dalam dropdown */
+.account-dropdown-menu > a {
+    display: flex;
+    align-items: center;
+    padding: 11px 12px;
+    color: #554438;
+    font-size: 13px;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.account-dropdown-menu > a:hover {
+    background: #faf4ed;
+    color: var(--brown);
+}
+
+/* Garis pemisah */
+.dropdown-divider {
+    height: 1px;
+    margin: 5px 0;
+    background: #eee3d9;
+}
+
+/* Form logout */
+.account-dropdown-menu form {
+    margin: 0;
+    width: 100%;
+}
+
+.dropdown-logout {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 11px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #b33a32;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dropdown-logout:hover {
+    background: #fff1ef;
+}
+
+/* Keranjang tetap paling kanan */
+.store-nav .cart-link {
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+>>>>>>> Stashed changes
