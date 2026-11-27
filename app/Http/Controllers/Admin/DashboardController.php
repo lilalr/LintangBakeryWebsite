@@ -132,7 +132,18 @@ class DashboardController extends Controller
 
         $topProducts = collect($mergedProducts)->sortByDesc('qty')->take(5)->values();
 
-        $orders = Order::with('items')->latest()->take(6)->get();
+        $orders = Order::with('items')->orderByRaw("
+            CASE
+                WHEN status = 'Menunggu Konfirmasi' THEN 1
+                WHEN settlement_status = 'Menunggu Verifikasi Admin' THEN 2
+                WHEN status = 'Siap Dikirim' THEN 3
+                WHEN status = 'Sedang Diproduksi' THEN 4
+                WHEN status = 'Sedang Dikirim' THEN 5
+                WHEN status = 'Selesai/Lunas' THEN 6
+                WHEN status = 'Dibatalkan' THEN 7
+                ELSE 8
+            END ASC
+        ")->latest()->take(6)->get();
         $lowStock = Product::whereColumn('stock', '<=', 'min_stock')->orderBy('stock')->get();
         $expiringSoon = StockMutation::with('product')
             ->where('type', 'in')

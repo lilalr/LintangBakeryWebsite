@@ -24,7 +24,7 @@ class OrderController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Order::with('items')->latest();
+        $query = Order::with('items');
 
         $selectedStatus = $request->query('status');
         if (empty($selectedStatus) || $selectedStatus === 'active') {
@@ -49,12 +49,45 @@ class OrderController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
+        $selectedSort = $request->query('sort', 'priority');
+        if ($selectedSort === 'latest') {
+            $query->latest();
+        } elseif ($selectedSort === 'updated') {
+            $query->latest('updated_at');
+        } elseif ($selectedSort === 'oldest') {
+            $query->oldest();
+        } else {
+            // Default: 'priority' -> Urutkan berdasarkan status yang paling penting untuk ditindaklanjuti/diupdate admin:
+            // 1. Menunggu Konfirmasi (pesanan baru masuk)
+            // 2. Menunggu Verifikasi Admin (bukti pelunasan DP)
+            // 3. Siap Dikirim (siap kirim / perlu surat jalan & resi)
+            // 4. Sedang Diproduksi
+            // 5. Sedang Dikirim
+            // 6. Selesai/Lunas
+            // 7. Dibatalkan
+            // Untuk status yang sama, urutkan tanggal terbaru (created_at desc)
+            $query->orderByRaw("
+                CASE
+                    WHEN status = 'Menunggu Konfirmasi' THEN 1
+                    WHEN settlement_status = 'Menunggu Verifikasi Admin' THEN 2
+                    WHEN status = 'Siap Dikirim' THEN 3
+                    WHEN status = 'Sedang Diproduksi' THEN 4
+                    WHEN status = 'Sedang Dikirim' THEN 5
+                    WHEN status = 'Selesai/Lunas' THEN 6
+                    WHEN status = 'Dibatalkan' THEN 7
+                    ELSE 8
+                END ASC
+            ")->latest();
+            $selectedSort = 'priority';
+        }
+
         $orders = $query->paginate(15)->withQueryString();
 
         return view('admin.orders.index', [
             'orders' => $orders,
             'statuses' => self::STATUSES,
             'currentStatus' => $selectedStatus,
+            'currentSort' => $selectedSort,
             'startDate' => $startDate,
             'endDate' => $endDate,
         ]);

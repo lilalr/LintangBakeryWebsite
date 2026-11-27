@@ -392,4 +392,56 @@ class ReportAndTransactionEnhancementsTest extends TestCase
         $response->assertSee('id="tab-sales"', false);
         $response->assertSee('value="sales"', false);
     }
+
+    public function test_orders_index_prioritizes_orders_needing_update_by_default(): void
+    {
+        $orderInTransit = Order::create([
+            'code' => 'ONL-SORT-TRANSIT',
+            'user_id' => $this->admin->id,
+            'buyer' => 'Buyer In Transit',
+            'phone' => '081234567890',
+            'address' => 'Jl. Merdeka',
+            'city' => 'Tasikmalaya',
+            'province' => 'Jawa Barat',
+            'postal_code' => '46131',
+            'delivery_method' => 'delivery',
+            'payment_method' => 'qris',
+            'payment_type' => 'full',
+            'status' => 'Sedang Dikirim',
+            'subtotal' => 50000,
+            'shipping_cost' => 0,
+            'total' => 50000,
+            'created_at' => now(),
+        ]);
+
+        $orderPending = Order::create([
+            'code' => 'ONL-SORT-PENDING',
+            'user_id' => $this->admin->id,
+            'buyer' => 'Buyer Pending',
+            'phone' => '081234567890',
+            'address' => 'Jl. Merdeka',
+            'city' => 'Tasikmalaya',
+            'province' => 'Jawa Barat',
+            'postal_code' => '46131',
+            'delivery_method' => 'delivery',
+            'payment_method' => 'qris',
+            'payment_type' => 'full',
+            'status' => 'Menunggu Konfirmasi',
+            'subtotal' => 50000,
+            'shipping_cost' => 0,
+            'total' => 50000,
+            'created_at' => now()->subDay(),
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.orders.index'));
+        $response->assertOk();
+
+        $content = $response->getContent();
+        $posPending = strpos($content, 'ONL-SORT-PENDING');
+        $posTransit = strpos($content, 'ONL-SORT-TRANSIT');
+
+        $this->assertNotFalse($posPending);
+        $this->assertNotFalse($posTransit);
+        $this->assertTrue($posPending < $posTransit);
+    }
 }
